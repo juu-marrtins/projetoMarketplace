@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Discount extends Model
 {
     public function product(){
-        return $this->belongsTo(Product::class); // ver com o moacir pq nao tem fk
+        return $this->belongsTo(Product::class); 
     }
 }

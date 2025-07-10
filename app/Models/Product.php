@@ -19,6 +19,6 @@ class Product extends Model
     }
 
     public function discounts(){
-        return $this->hasMany(Discount::class); // ver com o moacir pq nao tem fk
+        return $this->hasMany(Discount::class, 'productId'); 
     }
 }
