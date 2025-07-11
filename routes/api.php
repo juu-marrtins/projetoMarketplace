@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-Route::middleware(['auth:sanctum', 'ADMIN'])->group(function (){
-    Route::post('users/create-moderator', [AdminUserController::class, 'store']);
+Route::middleware(['auth:sanctum', 'admin'])->group(function (){
+    Route::post('user/create-moderator', [AdminUserController::class, 'store']);
 });
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/users/me', [UserController::class, 'update']);
