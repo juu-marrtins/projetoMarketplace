@@ -2,63 +2,66 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreAddressRequest;
+use App\Http\Requests\UpdateAddressRequest;
+use App\Models\Address;
+use Illuminate\Support\Facades\Auth;
 
 class AddressController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $addresses = Auth::user()->addresses;
+
+        return response()->json([
+            'addresses' => $addresses
+        ], 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+    public function store(StoreAddressRequest $request)
+    {  
+        $dataValidated = $request->validated(); 
+        $dataValidated['userId'] = Auth::id();
+
+        $address = Address::create($dataValidated);
+
+        return response()->json([
+            'message' => 'Endereco cadastrado com sucesso!',
+            'address' => $address
+            ], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+    public function show(string $addressId){
+        $address = Address::findOrFail($addressId);
+
+        return response()->json($address, 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(UpdateAddressRequest $request, string $addressId)
     {
-        //
+        $address = Auth::user()
+                ->addresses()
+                ->where('id', $addressId)
+                ->firstOrFail();
+
+        $address->update($request->validated());
+
+        return response()->json([
+            'message' => 'Endereco atualizado com sucesso!',
+            'Address' => $address
+        ], 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(string $addressId)
     {
-        //
-    }
+        $address = Auth::user()
+                ->addresses()
+                ->where('id', $addressId)
+                ->firstOrFail();
+        $address->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->json([
+            'message' => 'Endereco excluido com sucesso!'
+        ], 200);
     }
 }

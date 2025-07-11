@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
 
-        public function login(LoginAuthRequest $request){
+        public function login(LoginAuthRequest $request)
+        {
             $dataValidated = $request->validated();
 
             if(Auth::attempt($dataValidated)){ //atentica
@@ -27,7 +28,8 @@ class AuthController extends Controller
             return response()->json(['message' => 'Credenciais invalidas.'], 400);
         }
 
-        public function register(RegisterAuthRequest $request){
+        public function register(RegisterAuthRequest $request)
+        {
             $dataValidated = $request->validated();
 
             $user = User::create($dataValidated);
