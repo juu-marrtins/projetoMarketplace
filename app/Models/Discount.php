@@ -10,10 +10,11 @@ class Discount extends Model
         'description',
         'startDate',
         'endDate',
-        'discountPercentage'
+        'discountPercentage',
+        'productId'
     ];
     
     public function product(){
-        return $this->belongsTo(Product::class); 
+        return $this->belongsTo(Product::class, 'productId'); 
     }
 }
