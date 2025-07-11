@@ -4,16 +4,22 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CouponController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function (){
+    Route::delete('/coupons/{couponId}', [CouponController::class, 'destroy']);
+    Route::put('/coupons/{couponId}', [CouponController::class, 'update']);
+    Route::get('/coupons/{couponId}', [CouponController::class, 'show']);
+    Route::get('/coupons/', [CouponController::class, 'index']);
+    Route::post('/coupons/', [CouponController::class, 'store']);
     Route::delete('/categories/{categoryId}', [CategoryController::class, 'destroy']);
     Route::put('/categories/{categoryId}', [CategoryController::class, 'update']);
     Route::post('/categories/', [CategoryController::class, 'store']);
-    
+
     Route::post('user/create-moderator', [AdminUserController::class, 'store']);
 });
 Route::middleware(['auth:sanctum'])->group(function () {
