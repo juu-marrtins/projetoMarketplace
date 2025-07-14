@@ -5,45 +5,39 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Coupon\StoreCouponRequest;
 use App\Http\Requests\Coupon\UpdateCouponRequest;
-use App\Models\Coupon;
+use App\Http\Services\Admin\CouponService;
 
 class CouponController extends Controller
 {
+
+    public function __construct(protected CouponService $couponService)
+    {}
+
     public function index()
     {
-        $coupon = Coupon::all();
-
         return response()->json([
-            'coupons' => $coupon
+            'coupons' => $this->couponService->getAllCoupons()
         ], 200);
     }
 
     public function store(StoreCouponRequest $request)
     {
-        $dataValidated = $request->validated();
-
-        $coupon = Coupon::create($dataValidated);
-
         return response()->json([
             'message' => 'Cupom criado com sucesso!',
-            'Cupom' => $coupon
+            'Cupom' => $this->couponService->createCoupon($request->validated())
         ], 201);
     }
 
     public function show(string $couponId)
     {
-        $coupon = Coupon::findOrFail($couponId);
-
         return response()->json([
-            'Cupom' => $coupon
+            'Cupom' => $this->couponService->findCouponById($couponId)
         ], 200);
     }
 
     public function update(UpdateCouponRequest $request, string $couponId)
     {
-        $coupon = Coupon::findOrFail($couponId);
-
-        $coupon->update($request->validated());
+        $this->couponService->updateCoupon($request->validated(), $couponId);
 
         return response()->json([
             'message' => 'Cupom atualizado com sucesso!'
@@ -52,9 +46,7 @@ class CouponController extends Controller
 
     public function destroy(string $couponId)
     {
-        $coupon = Coupon::findOrFail($couponId);
-
-        $coupon->delete();
+        $this->couponService->deleteCoupon($couponId);
 
         return response()->json([
             'message' => 'Cupom excluido com sucesso!'

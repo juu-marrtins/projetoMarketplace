@@ -5,44 +5,40 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
-use App\Models\Category;
+use App\Http\Services\Admin\CategoryService;
 
 class CategoryController extends Controller
 {
+
+    public function __construct(protected CategoryService $categoryService)
+    {}
+
     public function index()
     {
-        $category = Category::all();
-
         return response()->json([
-            'Categories' => $category
+            'Categories' => $this->categoryService->getAllCategories()
         ], 200);
     }
 
     public function store(StoreCategoryRequest $request)
     {
-        $dataValidated = $request->validated();
-
-        $category = Category::create($dataValidated);
-
         return response()->json([
             'message' => 'Categoria criada com sucesso!',
-            'category' => $category
+            'category' => $this->categoryService->createCategory($request->validated())
         ], 201);
     }
 
     public function show(string $categoryId)
     {
-        $category = Category::findOrFail($categoryId);
-
-        return response()->json($category, 200);
+        return response()->json([
+            'category' => $this->categoryService->findCategoryById($categoryId)
+        ], 200);
     }
 
     public function update(UpdateCategoryRequest $request, string $categoryId)
-    {
-        $category = Category::findOrFail($categoryId);
+    {   
+        $this->categoryService->UpdateCategory($request->validated(), $categoryId);
 
-        $category->update($request->validated());
-        
         return response()->json([
             'message' => 'Categoria atualizada com sucesso!'
         ], 200);
@@ -50,9 +46,7 @@ class CategoryController extends Controller
 
     public function destroy(string $categoryId)
     {
-        $category = Category::findOrFail($categoryId);
-
-        $category->delete();
+        $this->categoryService->deleteCategory($categoryId);
 
         return response()->json([
             'message' => ' Categoria excluida com sucesso!'

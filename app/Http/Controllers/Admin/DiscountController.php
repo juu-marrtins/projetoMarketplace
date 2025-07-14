@@ -5,46 +5,39 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Discount\StoreDiscountRequest;
 use App\Http\Requests\Discount\UpdateDiscountRequest;
+use App\Http\Services\Admin\DiscountService;
 use App\Models\Discount;
 
 class DiscountController extends Controller
 {
 
-    //TESTAR CRUD DE DISCONTO (PRECISA CRIAR PRODUTO PARA TESTES) --------------
+    public function __construct(protected DiscountService $discountService)
+    {}
+
     public function index()
     {
-        $discount = Discount::all();
-
         return response()->json([
-            'discounts' => $discount
+            'discounts' => $this->discountService->getAllDiscounts()
         ], 200);
     }
 
     public function store(StoreDiscountRequest $request)
     {
-        $dataValidated = $request->validated();
-
-        $discount = Discount::create($dataValidated);
-
         return response()->json([
             'message' => 'Disconto criado com sucesso!',
-            'discount' => $discount
+            'discount' => $this->discountService->createDiscount($request->validated())
         ], 201);
     }
 
     public function show(string $discountId)
     {
-        $discount = Discount::findOrFail($discountId);
-
         return response()->json([
-            'Discount' => $discount
+            'Discount' => $this->discountService->findDiscountById($discountId)
         ], 200);
     }
     public function update(UpdateDiscountRequest $request, string $discountId)
     {
-        $discount = Discount::findOrFail($discountId);
-
-        $discount->update($request->validated());
+        $this->discountService->UpdateDiscount($request->validated(), $discountId);
 
         return response()->json([
             'message' => 'Cupom atualizado com sucesso!'
@@ -53,10 +46,8 @@ class DiscountController extends Controller
 
     public function destroy(string $discountId)
     {
-        $discount = Discount::findOrFail($discountId);
-
-        $discount->delete();
-
+        $this->discountService->deleteDiscount($discountId);
+        
         return response()->json([
             'message' => 'Disconto excluido com sucesso!'
         ], 200);
