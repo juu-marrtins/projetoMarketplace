@@ -9,9 +9,7 @@ use App\Models\Discount;
 class DiscountController extends Controller
 {
 
-    TESTAR CRUD DE DISCONTO (PRECISA CRIAR PRODUTO PARA TESTES) --------------
-
-
+    //TESTAR CRUD DE DISCONTO (PRECISA CRIAR PRODUTO PARA TESTES) --------------
     public function index()
     {
         $discount = Discount::all();

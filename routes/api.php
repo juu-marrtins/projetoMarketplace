@@ -6,10 +6,17 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\DiscountController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
+Route::middleware(['auth:sanctum', 'moderator'])->group(function (){
+    Route::delete('/products/{productId}', [ProductController::class, ' destroy']);
+    Route::put('/products/{productId}', [ProductController::class, 'update']);
+    Route::post('/products/', [ProductController::class, 'store']);
+});
 
 Route::middleware(['auth:sanctum', 'admin'])->group(function (){
     Route::delete('/discounts/{discountId}', [DiscountController::class, 'destroy']);
@@ -40,6 +47,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::delete('/users/me', [UserController::class, 'destroy']); 
 });
 
+Route::get('/products/{productId}', [ProductController::class, 'show']);
+Route::get('/products/', [ProductController::class, 'index']);
 Route::get('/categories/{categoryId}', [CategoryController::class, 'show']);
 Route::get('/categories/', [CategoryController::class, 'index']); 
 
