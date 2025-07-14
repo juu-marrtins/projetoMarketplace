@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Address;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateDiscountRequest extends FormRequest
+class StoreAddressRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,11 +22,12 @@ class UpdateDiscountRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => 'string|min:3|max:255',
-            'startDate' => 'required|date',
-            'endDate' => 'required|date',
-            'discountPercentage' => 'required|decimal:2|min:1|max:255',
-            'productId' => 'sometimes|exists:products,id'
+            'street' => 'required|string|min:10|max:255',
+            'number' => 'required|integer|min:1',
+            'zip' => 'required|string|min:8|max:15',
+            'city' => 'required|string|min:4|max:20',
+            'state' => 'required|string|min:4|max:20',
+            'country' => 'required|string|min:4|max:20'
         ];
     }
 }

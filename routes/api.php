@@ -3,10 +3,10 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\CouponController;
-use App\Http\Controllers\DiscountController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\Moderator\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
