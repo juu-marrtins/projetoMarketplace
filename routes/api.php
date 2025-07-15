@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Address\AddressController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -40,7 +40,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::put('/addresses/{addressId}', [AddressController::class, 'update']);
     Route::get('/addresses/{addressId}', [AddressController::class, 'show']);
     Route::post('/addresses/', [AddressController:: class, 'store']);
-    Route::get('/addresses/', [AddressController::class, 'index']);
+    Route::get('/addresses/', [AddressController::class, 'addressUser']);
 
     Route::put('/users/me', [UserController::class, 'update']);
     Route::get('/users/me', [UserController::class, 'me']);
