@@ -10,7 +10,7 @@ class AuthRepository{
         return Auth::attempt($dataValidated);
     }
 
-    public function getAuthUser()
+    public function getUser()
     {
         return Auth::user();
     }

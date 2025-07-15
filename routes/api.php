@@ -53,7 +53,7 @@ Route::get('/categories/{categoryId}', [CategoryController::class, 'show']);
 Route::get('/categories/', [CategoryController::class, 'index']); 
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [UserController::class, 'store']);
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();

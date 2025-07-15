@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use Illuminate\Http\Request;
+use App\Http\Services\UserService;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    public function __construct(protected UserService $userService)
+    {}
+        
     public function index()
     {
         $user = Auth::user(); //procura o user autenticado
@@ -21,8 +25,12 @@ class UserController extends Controller
     }
 
 
-    public function store(Request $request){
-        //
+    public function store(StoreUserRequest $request){
+
+
+        $this->userService->createUser($request->validated());
+                        
+        return response()->json(['message' => 'Usuário criado com sucesso!'], 201);
     }
 
     public function show(string $id)

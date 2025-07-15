@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginAuthRequest;
-use App\Http\Requests\Auth\RegisterAuthRequest;
 use App\Http\Services\Auth\AuthService;
-use App\Models\User;
+
 
 class AuthController extends Controller
 {
@@ -26,14 +25,5 @@ class AuthController extends Controller
                 'message' => 'Token criado com sucesso',
                 $createTokenOrFail
             ], 201);
-        }
-
-        public function register(RegisterAuthRequest $request)
-        {
-            $dataValidated = $request->validated();
-
-            $user = User::create($dataValidated);
-            
-            return response()->json(['message' => 'Usuário criado com sucesso!'], 201);
         }
 }

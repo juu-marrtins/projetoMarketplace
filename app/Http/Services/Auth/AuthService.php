@@ -14,7 +14,7 @@ class AuthService{
     }
 
     public function getUserAuth(){
-        return $this->authRepository->getAuthUser();
+        return $this->authRepository->getUser();
     }
 
     public function createToken(array $dataValidated)
@@ -23,7 +23,7 @@ class AuthService{
             return null; 
         }
 
-        $user = $this->authRepository->getAuthUser();
+        $user = $this->authRepository->getUser();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
