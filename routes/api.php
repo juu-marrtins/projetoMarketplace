@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::middleware(['auth:sanctum', 'moderator'])->group(function (){
-    Route::delete('/products/{productId}', [ProductController::class, ' destroy']);
+    Route::delete('/products/{productId}', [ProductController::class, 'destroy']);
     Route::put('/products/{productId}', [ProductController::class, 'update']);
     Route::post('/products/', [ProductController::class, 'store']);
 });

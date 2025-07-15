@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Product;
+namespace App\Http\Requests\Moderator;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,9 +23,9 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'categoryId' => 'required|exists:categories,id|integer',
-            'name' => 'required|string|min:3|max:255|unique',
+            'name' => 'required|string|min:3|max:255|unique:products,name',
             'stock' => 'required|integer|min:1|max:255',
-            'price'=> 'required|decimal:2|min:1|max:255'
+            'price'=> 'required|decimal:2|min:1'
         ];
     }
 }

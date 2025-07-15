@@ -3,25 +3,26 @@
 namespace App\Http\Controllers\Moderator;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Product\StoreProductRequest;
-use App\Http\Requests\Product\UpdateProductRequest;
+use App\Http\Requests\Moderator\StoreProductRequest;
+use App\Http\Requests\Moderator\UpdateProductRequest;
+use App\Http\Services\Moderator\ProductService;
 use App\Models\Product;
 class ProductController extends Controller
 {
 
-    // TESTAR CRUD DE PRODUTO
+    public function __construct(protected ProductService $productService)
+    {}
+
     public function index()
     {
-        $products =  Product::all();
-
-        return response()->json($products, 200);
+        return response()->json([
+            'products' => $this->productService->getAllProducts()
+        ], 200);
     }
 
     public function store(StoreProductRequest $request)
     {
-        $dataValidated = $request->validated();
-
-        $product = Product::create($dataValidated);
+        $this->productService->createProduct($request->validated());
 
         return response()->json([
             'message' => 'Produto cadastrado com sucesso!'
@@ -30,16 +31,14 @@ class ProductController extends Controller
 
     public function show(string $productId)
     {
-        $product = Product::findOrFail($productId);
-
-        return response()->json($product, 200);
+        return response()->json([
+            'product' => $this->productService->getProductById($productId)
+        ], 200);
     }
 
     public function update(UpdateProductRequest $request, string $productId)
     {
-        $product = Product::findOrFail($productId);
-
-        $product->update($request->validated());
+        $this->productService->updateProduct($request->validated(), $productId);
 
         return response()->json([
             'message' => 'Produto atualizado com sucesso!'
@@ -48,10 +47,8 @@ class ProductController extends Controller
 
     public function destroy(string $productId)
     {
-        $product = Product::findOrFail($productId);
-
-        $product->delete();
-
+        $this->productService->deleteProduct($productId);
+        
         return response()->json([
             'message' => 'Produto excluido com sucesso!'
         ], 200);
