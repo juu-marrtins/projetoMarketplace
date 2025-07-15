@@ -7,7 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DiscountController;
 use App\Http\Controllers\Moderator\ProductController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\User\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,7 +43,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/addresses/', [AddressController::class, 'index']);
 
     Route::put('/users/me', [UserController::class, 'update']);
-    Route::get('/users/me', [UserController::class, 'index']);
+    Route::get('/users/me', [UserController::class, 'me']);
     Route::delete('/users/me', [UserController::class, 'destroy']); 
 });
 

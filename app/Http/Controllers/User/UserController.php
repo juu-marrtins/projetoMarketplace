@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
-use App\Http\Services\UserService;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Services\User\UserService;
 
 class UserController extends Controller
 {
     public function __construct(protected UserService $userService)
     {}
-        
-    public function index()
+    
+    public function me()
     {
-        $user = Auth::user(); //procura o user autenticado
+        $user = $this->userService->getAuthUser();
 
         return response()->json([
             'id' => $user->id,
@@ -23,8 +23,6 @@ class UserController extends Controller
             'role' => $user->role
         ], 200);
     }
-
-
     public function store(StoreUserRequest $request){
 
 
@@ -33,28 +31,19 @@ class UserController extends Controller
         return response()->json(['message' => 'Usuário criado com sucesso!'], 201);
     }
 
-    public function show(string $id)
+    public function update(UpdateUserRequest $request)
     {
-        //
-    }
+        $this->userService->updateUser($request->validated());
 
-    public function update(UpdateUserRequest $request){
-        $user = Auth::user(); // user autenticado
-
-        $dataValidated = $request->validated();
-
-        $user->update($dataValidated);
         return response()->json([ 
-            'message' => 'Usuario atualizado com sucesso!',
-            'user' => $user
+            'message' => 'Usuario atualizado com sucesso!'
         ], 200);
     }
 
     public function destroy()
     {
-        $user = Auth::user();
+        $this->userService->deleteUser();
 
-        $user->delete();
         return response()->json([
             'message' => 'Usuario excluido com sucesso!'
         ], 200);
