@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Coupon;
+namespace App\Http\Requests\Admin\Category;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateCouponRequest extends FormRequest
+class UpdateCategoryRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,16 +23,11 @@ class UpdateCouponRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'code' => [
-                'required',
-                'string',
-                'min:3',
-                'max:255',
-                Rule::unique('coupons')->ignore($this->coupon)
-            ],
-            'startDate' => 'required|date',
-            'endDate' => 'required|date',
-            'discountPercentage' => 'required|string|min:1|max:255'
+            'name' => [
+            'required',
+            Rule::unique('categories')->ignore($this->category)
+        ],
+            'description' => 'required|min:3|max:255|string'
         ];
     }
 }

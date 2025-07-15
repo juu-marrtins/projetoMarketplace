@@ -5,27 +5,27 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginAuthRequest;
 use App\Http\Requests\Auth\RegisterAuthRequest;
+use App\Http\Services\Auth\AuthService;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-
+    public function __construct(protected AuthService $authService)
+    {}
         public function login(LoginAuthRequest $request)
         {
-            $dataValidated = $request->validated();
-
-            if(Auth::attempt($dataValidated)){ //atentica
-                $user = Auth::user(); // pega o usuario autenticado
-                $token = $user->createToken('auth_token')->plainTextToken; //cria para o usuario que pegamos
+            $createTokenOrFail = $this->authService->createToken($request->validated());
+            
+            if(!$createTokenOrFail)
+            {
                 return response()->json([
-                    'message' => 'Token criado com sucesso',
-                    'user' => $user,
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                ], 201);
+                    'message' => 'Credenciais Invalidas.'
+                ], 400);
             }
-            return response()->json(['message' => 'Credenciais invalidas.'], 400);
+            return response()->json([
+                'message' => 'Token criado com sucesso',
+                $createTokenOrFail
+            ], 201);
         }
 
         public function register(RegisterAuthRequest $request)

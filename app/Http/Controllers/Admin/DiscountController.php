@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Discount\StoreDiscountRequest;
-use App\Http\Requests\Discount\UpdateDiscountRequest;
+use App\Http\Requests\Admin\Discount\StoreDiscountRequest;
+use App\Http\Requests\Admin\Discount\UpdateDiscountRequest;
 use App\Http\Services\Admin\DiscountService;
-use App\Models\Discount;
 
 class DiscountController extends Controller
 {

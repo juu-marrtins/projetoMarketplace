@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Coupon\StoreCouponRequest;
-use App\Http\Requests\Coupon\UpdateCouponRequest;
+use App\Http\Requests\Admin\Coupon\StoreCouponRequest;
+use App\Http\Requests\Admin\Coupon\UpdateCouponRequest;
 use App\Http\Services\Admin\CouponService;
 
 class CouponController extends Controller
