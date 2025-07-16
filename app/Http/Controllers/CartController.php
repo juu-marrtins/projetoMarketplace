@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\CartService;
-use Illuminate\Http\Request;
-
 class CartController extends Controller
 {
     public function __construct(protected CartService $cartService)
@@ -17,7 +15,7 @@ class CartController extends Controller
         ], 200);
     }
 
-    public function store(Request $request)
+    public function store()
     {
         return response()->json([
             'message' => 'Carrinho criado com sucesso!',
@@ -25,7 +23,7 @@ class CartController extends Controller
         ], 201);
     }
 
-    public function destroy(string $id)
+    public function destroy()
     {
         return response()->json([
             'message' => $this->cartService->deleteCart()

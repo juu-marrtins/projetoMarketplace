@@ -12,11 +12,12 @@ class CartService
 
     public function getCartAuth()
     {
-        if($this->cartRepository->getCart())
+        $cart = $this->cartRepository->getCart();
+        if(!$cart)
         {
             return "Carrinho vazio.";
         }
-        return $this->cartRepository->getCart();
+        return $cart;
     }
 
     public function createCart()
@@ -26,7 +27,11 @@ class CartService
 
     public function deleteCart()
     {
-        Auth::user()->cart()->delete();
+        $cart = Auth::user()->cart;
+        if(!$cart){
+            return 'Nenhum carrinho apra excluir';
+        }
+        $cart->delete();
         return 'Carrinho excluido com sucesso!';
     }
 }

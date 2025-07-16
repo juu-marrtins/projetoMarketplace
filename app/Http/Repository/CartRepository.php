@@ -14,6 +14,8 @@ class CartRepository
 
     public function create()
     {
-        return Cart::create();
+        return Cart::create([
+            'userId' => Auth::user()->id
+        ]);
     }
 }

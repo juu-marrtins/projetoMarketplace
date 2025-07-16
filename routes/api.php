@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\Moderator\ProductController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Http\Request;
@@ -36,6 +37,10 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function (){
     Route::post('user/create-moderator', [AdminUserController::class, 'store']);
 });
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::delete('/cart/clear', [CartController::class, 'destroy']);
+    Route::get('/cart/', [CartController::class, 'cartUser']);
+    Route::post('/cart/', [CartController::class, 'store']);
+
     Route::delete('/addresses/{addressId}', [AddressController::class, 'destroy']);
     Route::put('/addresses/{addressId}', [AddressController::class, 'update']);
     Route::get('/addresses/{addressId}', [AddressController::class, 'show']);
