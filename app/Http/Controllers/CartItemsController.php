@@ -2,63 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\DestroyCartItemRequest;
+use App\Http\Requests\InsertCartItemsRequest;
+use App\Http\Services\CartItemsService;
 
 class CartItemsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct(protected CartItemsService $cartItemsService)
+    {}
+
+    public function itemsCart()
     {
-        //
+        return response()->json([
+            'Cart Items' => $this->cartItemsService->getItems()
+        ], 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function insert(InsertCartItemsRequest $request)
     {
-        //
+        $this->cartItemsService->insertItem($request->validated());
+        return response()->json([
+            'message' => 'Produto inserido no carrinho com sucesso!' // PERGUNTAR PRO MOACIR SE DA PRA FAZER ASSIM
+        ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function destroy(DestroyCartItemRequest $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->json([
+            'message' => $this->cartItemsService->deleteItem($request->validated())
+        ], 200);
     }
 }

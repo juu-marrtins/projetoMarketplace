@@ -9,7 +9,7 @@ class CartRepository
 {
     public function getCart()
     {
-        return Auth::user()->carts;
+        return Auth::user()->cart;
     }
 
     public function create()

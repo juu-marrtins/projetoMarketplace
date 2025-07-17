@@ -2,6 +2,7 @@
 
 namespace App\Http\Repository;
 
+use App\Models\CartItem;
 use Illuminate\Support\Facades\Auth;
 
 class CartItemsRepository
@@ -9,6 +10,35 @@ class CartItemsRepository
     public function allItems()
     {
         $cart = Auth::user()->cart;
-        return $cart->items();
+        return $cart->items;
+    }
+
+    public function insert(array $dataValidated)
+    {
+        return CartItem::create($dataValidated);
+    }
+
+    public function findItemById(string $productId)
+    {
+        $cartId = Auth::user()->cart->id;
+        return CartItem::where('cartId', $cartId)
+                        ->where('productId', $productId)
+                        ->first();
+    }
+
+    public function incrementQuantity(string $productId, int $newQuantity)
+    {
+        $product = $this->findItemById($productId);
+
+        $product->quantity +=  $newQuantity;
+        $product->save();
+
+        return $product;
+    }
+
+    public function delete(string $itemId)
+    {
+        $item = $this->findItemById($itemId);
+        return $item->delete();
     }
 }

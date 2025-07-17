@@ -8,10 +8,10 @@ class CartItem extends Model
 {
 
     protected $fillable = [
-        'orderId',
+        'cartId',
         'productId',
         'quantity',
-        'unityPrice'
+        'unitPrice'
     ];
 
     public function cart(){
