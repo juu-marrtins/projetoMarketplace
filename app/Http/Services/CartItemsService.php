@@ -41,12 +41,12 @@ class CartItemsService
         return $this->cartItemsRepository->insert($dataValidated);
     }
 
-    public function incrementItem(array $dataValidated)
-    {
-        return $this->cartItemsRepository->incrementQuantity(
-            $dataValidated['productId'],
-            $dataValidated['quantity']);
-    }
+        public function incrementItem(array $dataValidated)
+        {
+            return $this->cartItemsRepository->incrementQuantity(
+                $dataValidated['productId'],
+                $dataValidated['quantity']);
+        }
 
     public function deleteItem(array $dataValidated)
     {

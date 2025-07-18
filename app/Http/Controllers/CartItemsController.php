@@ -22,7 +22,7 @@ class CartItemsController extends Controller
     {
         $this->cartItemsService->insertItem($request->validated());
         return response()->json([
-            'message' => 'Produto inserido no carrinho com sucesso!' // PERGUNTAR PRO MOACIR SE DA PRA FAZER ASSIM
+            'message' => 'Produto inserido no carrinho com sucesso!'
         ], 200);
     }
 
