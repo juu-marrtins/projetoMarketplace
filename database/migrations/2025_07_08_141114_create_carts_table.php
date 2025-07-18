@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('createAt');
             $table->foreignId('userId')
                     ->constrained('users', 'id');
             $table->timestamps();

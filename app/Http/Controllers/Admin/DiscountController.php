@@ -39,7 +39,7 @@ class DiscountController extends Controller
         $this->discountService->UpdateDiscount($request->validated(), $discountId);
 
         return response()->json([
-            'message' => 'Cupom atualizado com sucesso!'
+            'message' => 'Disconto atualizado com sucesso!'
         ], 200);
     }
 

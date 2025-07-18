@@ -6,13 +6,18 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DiscountController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CartItemsController;
 use App\Http\Controllers\Moderator\ProductController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\User\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
 Route::middleware(['auth:sanctum', 'moderator'])->group(function (){
+    Route::put('/orders/{orderId}', [OrderController::class, 'update']);
+    Route::get('/orders/all', [OrderController::class, 'allOrders']);
     Route::delete('/products/{productId}', [ProductController::class, 'destroy']);
     Route::put('/products/{productId}', [ProductController::class, 'update']);
     Route::post('/products/', [ProductController::class, 'store']);
@@ -36,6 +41,18 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function (){
     Route::post('user/create-moderator', [AdminUserController::class, 'store']);
 });
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::delete('/orders/{orderId}', [OrderController::class, 'destroy']);
+    Route::get('/orders/{orderId}', [OrderController::class, 'orderById']);
+    Route::post('/orders/', [OrderController::class, 'store']);
+    Route::get('/orders/', [OrderController::class, 'orderByUser']);
+    Route::delete('/cart/items', [CartItemsController::class, 'destroy']);
+    Route::post('/cart/items', [CartItemsController::class, 'insert']);
+    Route::get('/cart/items', [CartItemsController::class, 'itemsCart']);
+
+    Route::delete('/cart/clear', [CartController::class, 'destroy']);
+    Route::get('/cart/', [CartController::class, 'cartUser']);
+    Route::post('/cart/', [CartController::class, 'store']);
+
     Route::delete('/addresses/{addressId}', [AddressController::class, 'destroy']);
     Route::put('/addresses/{addressId}', [AddressController::class, 'update']);
     Route::get('/addresses/{addressId}', [AddressController::class, 'show']);
