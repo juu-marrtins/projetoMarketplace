@@ -24,26 +24,27 @@ class OrderService
     public function createOrder(array $dataValidated)
     {   
         $dataValidated['userId'] = Auth::user()->id;
+        $dataValidated['orderDate'] = now();
         $order =  $this->orderRepository->create($dataValidated);
         $this->createOrderItem($order);
         return $order;
     }
 
-    public function createOrderItem(Order $order)
+        public function createOrderItem(Order $order)
     {
-        $cart = Auth::user()->cart;
+        $cart = Auth::user()->cart()->with('items.product.discounts');
+
         $totalOrder = 0;
 
-        foreach ($cart->items as $item)
+        foreach ($cart->items as $item) // ERRO AQUI CORRIIGIR
         {
             $product = $item->product;
-
-            $discount = $product->discounts()->where('endDate', '>=', now())->first();
+            $discount = $product->discounts->firstWhere('endDate', '>=', now());
 
             $subtotal = $item->quantity * $item->unitPrice;
 
-            if($discount){
-                $amountDiscount = $subtotal*($discount->discountPercentage/100);
+            if ($discount) {
+                $amountDiscount = $subtotal * ($discount->discountPercentage / 100);
                 $subtotal -= $amountDiscount;
             }
 
@@ -56,12 +57,13 @@ class OrderService
 
             $totalOrder += $subtotal;
         }
+
         $order->totalAmount = $totalOrder;
         $order->save();
 
-        // testar 
         return $totalOrder;
     }
+
 
     public function getOrderById(string $orderId)
     {

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('couponId')
                     ->constrained('coupons', 'id');
             $table->enum('status', ['PENDING', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED'])->default('PENDING');
-            $table->decimal('totalAmount', 10, 2);
+            $table->decimal('totalAmount', 10, 2)->default(null);
             $table->timestamps();
         });
     }

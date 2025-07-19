@@ -9,8 +9,19 @@ class CartItemsRepository
 {
     public function allItems()
     {
-        $cart = Auth::user()->cart;
-        return $cart->items;
+        $cart = Auth::user()->cart()->with('cartItems')->first();
+
+        if(!$cart){
+            return 'Usuário não possui carrinho';
+        }
+
+        $items = $cart->cartItems;
+
+        if($items->isEmpty()){
+            return 'Carrinho vazio';
+        }
+
+        return $items;
     }
 
     public function insert(array $dataValidated)

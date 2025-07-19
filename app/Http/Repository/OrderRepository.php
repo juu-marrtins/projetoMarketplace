@@ -32,10 +32,10 @@ class OrderRepository
         return Order::create($dataValidated);
     }
 
-    public function createOrderItem(string $oderId, string $productId, int $quantity, string $unitPrice)
+    public function createOrderItem(string $orderId, string $productId, int $quantity, string $unitPrice)
     {
         return OrderItem::create([
-            'orderId' => $oderId,
+            'orderId' => $orderId,
             'productId' => $productId,
             'quantity' => $quantity,
             'unitPrice' => $unitPrice

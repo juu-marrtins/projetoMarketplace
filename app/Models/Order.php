@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     protected $fillable = [
+        'userId',
         'addressId',
         'couponId',
+        'orderDate',
     ];
     
     public function address(){

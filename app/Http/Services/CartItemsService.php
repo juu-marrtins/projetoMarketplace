@@ -12,13 +12,13 @@ class CartItemsService
 
     public function getItems()
     {
+        
         $items = $this->cartItemsRepository->allItems();
 
-        if(!$items)
-        {
+        if (is_null($items) || $items->isEmpty()) {
             return "Carrinho vazio.";
         }
-
+        
         return $items;
     }
 
