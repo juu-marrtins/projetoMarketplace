@@ -32,7 +32,7 @@ class OrderService
 
         public function createOrderItem(Order $order)
     {
-        $cart = Auth::user()->cart()->with('items.product.discounts');
+        $cart = Auth::user()->cart()->with('items.product.discounts')->first();
 
         $totalOrder = 0;
 
@@ -57,6 +57,8 @@ class OrderService
 
             $totalOrder += $subtotal;
         }
+
+        // fazer logica do cupom
 
         $order->totalAmount = $totalOrder;
         $order->save();
