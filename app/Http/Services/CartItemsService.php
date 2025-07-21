@@ -24,7 +24,7 @@ class CartItemsService
 
     public function insertItem(array $dataValidated)
     {
-        $cart = Auth::user()->cart;
+        $cart = Auth::user()->cart; // FAZER LOGICA PRA VER SE PODE AS UNIDADES 
         if(!$cart)
         {
             return 'O usuario nao possue carrinho';

@@ -3,8 +3,10 @@
 namespace App\Http\Services;
 
 use App\Http\Repository\OrderRepository;
+use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 
 class OrderService
@@ -40,6 +42,9 @@ class OrderService
         foreach ($cart->items as $item) 
         {
             $product = $item->product;
+
+            $this->decrementProduct($product, $item);
+
             $discount = $product->discounts->firstWhere('endDate', '>=', now());
 
             $subtotal = $item->quantity * $item->unitPrice;
@@ -68,6 +73,12 @@ class OrderService
         $order->save();
 
         return $totalOrder;
+    }
+
+    public function decrementProduct(Product $product, CartItem $item)
+    {
+        $product->stock -= $item->quantity;
+        $product->save();
     }
 
     public function getCoupon(float $totalOrder, Coupon $coupon)
