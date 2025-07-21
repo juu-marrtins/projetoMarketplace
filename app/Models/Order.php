@@ -9,10 +9,8 @@ class Order extends Model
     protected $fillable = [
         'userId',
         'addressId',
-        'orderDate',
         'couponId',
-        'status',
-        'totalAmount'
+        'orderDate',
     ];
     
     public function address(){
