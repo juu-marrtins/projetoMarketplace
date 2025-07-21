@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Http\Repository\OrderRepository;
+use App\Models\Coupon;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,7 +37,7 @@ class OrderService
 
         $totalOrder = 0;
 
-        foreach ($cart->items as $item) // ERRO AQUI CORRIIGIR
+        foreach ($cart->items as $item) 
         {
             $product = $item->product;
             $discount = $product->discounts->firstWhere('endDate', '>=', now());
@@ -44,8 +45,7 @@ class OrderService
             $subtotal = $item->quantity * $item->unitPrice;
 
             if ($discount) {
-                $amountDiscount = $subtotal * ($discount->discountPercentage / 100);
-                $subtotal -= $amountDiscount;
+                $subtotal = $this->getDiscount($subtotal, $discount);
             }
 
             $this->orderRepository->createOrderItem(
@@ -58,12 +58,28 @@ class OrderService
             $totalOrder += $subtotal;
         }
 
-        // fazer logica do cupom
+        $coupon = $order->coupon;
 
+        if ($coupon && $coupon->endDate >= now()) 
+        {
+            $totalOrder = $this->getCoupon($totalOrder, $coupon);
+        }
         $order->totalAmount = $totalOrder;
         $order->save();
 
         return $totalOrder;
+    }
+
+    public function getCoupon(float $totalOrder, Coupon $coupon)
+    {
+        $amountCoupon = $totalOrder * ($coupon->discountPercentage/100);
+        return $totalOrder - $amountCoupon;
+    }
+
+    public function getDiscount(float $subtotal, $discount)
+    {
+        $amountDiscount = $subtotal * ($discount->discountPercentage / 100);
+        return $subtotal - $amountDiscount;
     }
 
 

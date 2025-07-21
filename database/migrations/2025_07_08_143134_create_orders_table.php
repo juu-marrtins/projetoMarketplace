@@ -19,7 +19,8 @@ return new class extends Migration
                     ->constrained('addresses', 'id');
             $table->dateTime('orderDate');
             $table->foreignId('couponId')
-                    ->constrained('coupons', 'id');
+                    ->constrained('coupons', 'id')
+                    ->default(null);
             $table->enum('status', ['PENDING', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED'])->default('PENDING');
             $table->decimal('totalAmount', 10, 2)->default(null);
             $table->timestamps();
