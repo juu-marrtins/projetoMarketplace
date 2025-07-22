@@ -11,7 +11,7 @@ class CategoryRepository
         return Category::all();
     }
 
-    public function findById(string $id)
+    public function findOrFailById(string $id)
     {
         return Category::findOrFail($id);
     }

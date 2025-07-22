@@ -34,26 +34,16 @@ class AddressController extends Controller
 
     public function store(StoreAddressRequest $request) //  OK
     {   
-        $address = $this->addressService->createAddress($request->validated());
-
         return response()->json([
             'success' => true,
             'message' => 'Endereco criado com sucesso!',
-            'data' => $address
+            'data' => $this->addressService->createAddress($request->validated())
             ], 201);
     }
 
     public function show(string $addressId){ // OK
 
         $address = $this->addressService->getAddressById($addressId);
-
-        if(!$address)
-        {
-            return response()->json([
-                'success' => false,
-                'message' => 'Endereco inexistente.'
-            ], 404);
-        }
 
         return response()->json([
             'success' => true,
@@ -65,14 +55,6 @@ class AddressController extends Controller
     {
         $updatedAddress = $this->addressService->updateAddress($request->validated(), $addressId);
 
-        if(!$updatedAddress)
-        {
-            return response()->json([
-                'success' => false,
-                'message' => 'Endereco inexistente.'
-            ], 404);
-        }
-
         return response()->json([
             'success' => true,
             'message' => 'Endereco atualizado com sucesso!',
@@ -83,14 +65,7 @@ class AddressController extends Controller
     public function destroy(string $addressId) // OK
     {
         $deleted = $this->addressService->deleteAddress($addressId);
-
-        if(!$deleted){
-            return response()->json([
-                'success' => false,
-                'message' => 'Endereco inexistente.'
-            ], 404);
-        }
-
+        
         return response()->json([
             'success' => true,
             'message' => 'Endereco excluido com sucesso'

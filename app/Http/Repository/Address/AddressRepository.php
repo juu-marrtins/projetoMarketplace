@@ -14,7 +14,7 @@ class AddressRepository
 
     public function findAddress(string $id)
     {
-        return $this->authAddresses()->find($id);
+        return $this->authAddresses()->findOrFail($id);
     }
 
     public function create(array $dataValidated)

@@ -22,13 +22,7 @@ class AddressService
 
     public function getAddressById(string $id)
     {
-        $address = $this->addressRepository->findAddress($id);
-
-        if(!$address){
-            return null;
-        }
-
-        return $address;
+        return $this->addressRepository->findAddress($id);
     }
 
     public function createAddress(array $dataValidated)
@@ -41,10 +35,6 @@ class AddressService
     {
         $address = $this->addressRepository->findAddress($addressId);
 
-        if(!$address){
-            return null;
-        }
-
         $address->update($dataValidated); 
 
         return $address;
@@ -53,10 +43,6 @@ class AddressService
     public function deleteAddress(string $addressId)
     {
         $address = $this->addressRepository->findAddress($addressId);
-
-        if(!$address){
-            return false;
-        }
 
         return $address->delete();
     }

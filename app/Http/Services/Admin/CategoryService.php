@@ -17,7 +17,7 @@ class CategoryService
 
     public function findCategoryById(string $id)
     {
-        return $this->categoryRepository->findById($id);
+        return $this->categoryRepository->findOrFailById($id);
     }
 
     public function createCategory(array $dataValidated)
@@ -27,14 +27,22 @@ class CategoryService
 
     public function UpdateCategory(array $dataValidated, string $id)
     {
-        $category = $this->categoryRepository->findById($id);
-        return $category->update($dataValidated);
+        $category = $this->categoryRepository->findOrFailById($id);
+
+        $category->update($dataValidated);
+
+        return $category;
     }
 
     public function deleteCategory(string $id)
     {
-        $category = $this->categoryRepository->findById($id);
-        return $category->delete();
+        $category = $this->categoryRepository->findOrFailById($id);
+
+        if ($category->products()->count() > 0) 
+        {
+            return null;
+        }
+        return $category->delete(); 
     }
 
 }
