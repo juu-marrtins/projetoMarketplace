@@ -40,7 +40,7 @@ class CategoryService
         }
 
         $category->update($dataValidated);
-        
+
         return $category;
     }
 

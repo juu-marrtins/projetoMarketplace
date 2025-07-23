@@ -3,6 +3,7 @@
 namespace App\Http\Services\Address;
 
 use App\Http\Repository\Address\AddressRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 
 class AddressService
@@ -12,17 +13,16 @@ class AddressService
 
     public function getAllAddressesUser()
     {
-        $address = $this->addressRepository->authAddresses()->get();
-        if($address->isEmpty())
-        {
-            return null;
-        }
-        return $address;
+        return $this->addressRepository->authAddresses()->get();
     }
 
-    public function getAddressById(string $id)
+    public function findAddressById(string $id)
     {
-        return $this->addressRepository->findAddress($id);
+        try {
+            return $this->addressRepository->findAddress($id); 
+        } catch (ModelNotFoundException $e) {
+            return null;
+        }
     }
 
     public function createAddress(array $dataValidated)
@@ -33,7 +33,12 @@ class AddressService
 
     public function updateAddress(array $dataValidated, string $addressId)
     {
-        $address = $this->addressRepository->findAddress($addressId);
+        $address = $this->findAddressById($addressId);
+        
+        if(!$address)
+        {
+            return null;
+        }
 
         $address->update($dataValidated); 
 
@@ -42,7 +47,12 @@ class AddressService
 
     public function deleteAddress(string $addressId)
     {
-        $address = $this->addressRepository->findAddress($addressId);
+        $address = $this->findAddressById($addressId);
+
+        if(!$address || $address->orders()->count() > 0)
+        {
+            return null;
+        }
 
         return $address->delete();
     }

@@ -18,7 +18,7 @@ class AddressController extends Controller
     {
         $addresses = $this->addressService->getAllAddressesUser();
 
-        if(!$addresses)
+        if($addresses->isEmpty())
         {
             return response()->json([
                 'success' => false,
@@ -43,7 +43,14 @@ class AddressController extends Controller
 
     public function show(string $addressId){ // OK
 
-        $address = $this->addressService->getAddressById($addressId);
+        $address = $this->addressService->findAddressById($addressId);
+        if(!$address)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Endereco nao encontrado.'
+            ], 404);
+        }
 
         return response()->json([
             'success' => true,
@@ -53,19 +60,33 @@ class AddressController extends Controller
 
     public function update(UpdateAddressRequest $request, string $addressId) // OK
     {
-        $updatedAddress = $this->addressService->updateAddress($request->validated(), $addressId);
+        $address = $this->addressService->updateAddress($request->validated(), $addressId);
+
+        if(!$address)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Endereco nao encontrado.'
+            ], 404);
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Endereco atualizado com sucesso!',
-            'data' => $updatedAddress
+            'data' => $address
         ], 200);
     }
 
     public function destroy(string $addressId) // OK
     {
-        $deleted = $this->addressService->deleteAddress($addressId);
-        
+        $address = $this->addressService->deleteAddress($addressId);
+        if(!$address)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Endereco nao encontrado, ou possue comprar com esse endereco'
+            ], 404);
+        }
         return response()->json([
             'success' => true,
             'message' => 'Endereco excluido com sucesso'
