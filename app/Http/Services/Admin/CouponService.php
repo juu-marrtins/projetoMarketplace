@@ -3,6 +3,7 @@
 namespace App\Http\Services\Admin;
 
 use App\Http\Repository\Admin\CouponRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CouponService{
     
@@ -16,7 +17,11 @@ class CouponService{
 
     public function findCouponById(string $id)
     {
-        return $this->couponRepository->findById($id);
+        try {
+            return $this->couponRepository->findById($id); 
+        } catch (ModelNotFoundException $e) {
+            return null;
+        }
     }
 
     public function createCoupon(array $dataValidated)
@@ -26,13 +31,26 @@ class CouponService{
 
     public function updateCoupon(array $dataValidated, string $id)
     {
-        $coupon = $this->couponRepository->findById($id);
-        return $coupon->update($dataValidated);
+        $coupon = $this->findCouponById($id);
+
+        if(!$coupon)
+        {
+            return null;
+        }
+        $coupon->update($dataValidated);
+
+        return $coupon;
     }
 
     public function deleteCoupon(string $id)
     {
-        $coupon = $this->couponRepository->findById($id);
+        $coupon = $this->findCouponById($id);
+
+        if(!$coupon || $coupon->orders()->count() > 0) 
+        {
+            return null;
+        }
+
         return $coupon->delete();
     }
 }

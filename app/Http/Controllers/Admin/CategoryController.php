@@ -44,15 +44,31 @@ class CategoryController extends Controller
     {
         $category = $this->categoryService->findCategoryById($categoryId);
 
+        if(!$category)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhuma categoria encontrada.'
+            ], 404);
+        }
+
         return response()->json([
             'success' => true,
             'data' => $category
         ], 200);
     }
 
-    public function update(UpdateCategoryRequest $request, string $categoryId) //nao consegui tratar erro 4040
+    public function update(UpdateCategoryRequest $request, string $categoryId)
     {   
         $category = $this->categoryService->UpdateCategory($request->validated(), $categoryId);
+
+        if(!$category)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhuma categoria encontrada.'
+            ], 404);
+        }
 
         return response()->json([
             'success' => true,
@@ -68,7 +84,7 @@ class CategoryController extends Controller
         {
             return response()->json([
                 'success' => false,
-                'message' => 'Categoria nao pode ser excluida porque existem produtos associado a ela.'
+                'message' => 'Categoria nao pode ser excluida porque existem produtos associado a ela ou é inexistente.'
             ], 400);
         }
         return response()->json([
