@@ -16,10 +16,6 @@ class UserService
     {
         return Auth::user();
     }
-    public function findUserById(string $id)
-    {
-        return $this->userRepository->findById($id);
-    }
 
     public function createUser(array $dataValidated)
     {
@@ -29,12 +25,17 @@ class UserService
     public function updateUser(array $dataValidated)
     {
         $user = $this->getAuthUser();
-        return $user->update($dataValidated);
+
+        $user->update($dataValidated);
+
+        return $user;
     }
 
     public function deleteUser()
     {
         $user = $this->getAuthUser();
-        return $user->delete();
+        $user->delete();
+
+        return $user;
     }
 }

@@ -17,26 +17,29 @@ class UserController extends Controller
         $user = $this->userService->getAuthUser();
 
         return response()->json([
+            'success' => true,
             'id' => $user->id,
             'email' => $user->email,
             'name' => $user->name,
             'role' => $user->role
         ], 200);
     }
-    public function store(StoreUserRequest $request){
 
-
-        $this->userService->createUser($request->validated());
-                        
-        return response()->json(['message' => 'Usuário criado com sucesso!'], 201);
+    public function store(StoreUserRequest $request)
+    {                    
+        return response()->json([
+            'success' => true,
+            'message' => 'Usuário criado com sucesso!',
+            'data' => $this->userService->createUser($request->validated())
+        ], 201);
     }
 
     public function update(UpdateUserRequest $request)
     {
-        $this->userService->updateUser($request->validated());
-
         return response()->json([ 
-            'message' => 'Usuario atualizado com sucesso!'
+            'success' => true,
+            'message' => 'Usuario atualizado com sucesso!',
+            'data' => $this->userService->updateUser($request->validated())
         ], 200);
     }
 
@@ -45,6 +48,7 @@ class UserController extends Controller
         $this->userService->deleteUser();
 
         return response()->json([
+            'success' => true,
             'message' => 'Usuario excluido com sucesso!'
         ], 200);
     }

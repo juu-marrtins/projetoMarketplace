@@ -3,11 +3,14 @@
 namespace App\Http\Services;
 
 use App\Http\Repository\CartItemsRepository;
+use App\Http\Services\Moderator\ProductService;
 use Illuminate\Support\Facades\Auth;
 
 class CartItemsService
 {
-    public function __construct(protected CartItemsRepository $cartItemsRepository)
+    public function __construct(
+        protected CartItemsRepository $cartItemsRepository,
+        protected ProductService $productService)
     {}
 
     public function getItems()
@@ -15,8 +18,12 @@ class CartItemsService
         
         $items = $this->cartItemsRepository->allItems();
 
+        if ($items === 'no_cart') {
+            return 'no_cart';
+        }
+
         if (is_null($items) || $items->isEmpty()) {
-            return "Carrinho vazio.";
+            return null;
         }
         
         return $items;
@@ -24,16 +31,25 @@ class CartItemsService
 
     public function insertItem(array $dataValidated)
     {
-        $cart = Auth::user()->cart; // FAZER LOGICA PRA VER SE PODE AS UNIDADES 
+        $cart = Auth::user()->cart;
+        
         if(!$cart)
         {
-            return 'O usuario nao possue carrinho';
+            return 'no_cart';
         }
-        
+
         $dataValidated['cartId'] = $cart->id;
         $productId = $dataValidated['productId'];
-        $hasItem = $this->cartItemsRepository->findItemById($productId);
+        
+        $stock = $this->getStockItem($productId);
 
+        if($stock === null || $stock < $dataValidated['quantity'])
+        {
+            return 'no_stock';
+        }
+
+        $hasItem = $this->cartItemsRepository->findCartItemByProductId($productId);
+        
         if($hasItem){
             return $this->incrementItem($dataValidated);
         } 
@@ -41,17 +57,33 @@ class CartItemsService
         return $this->cartItemsRepository->insert($dataValidated);
     }
 
-        public function incrementItem(array $dataValidated)
+    public function getStockItem(string $id)
+    {
+        $product = $this->productService->findProductById($id);
+        if(!$product)
         {
-            return $this->cartItemsRepository->incrementQuantity(
-                $dataValidated['productId'],
-                $dataValidated['quantity']);
+            return null;
         }
+        return $product->stock;
+    }
+
+    public function incrementItem(array $dataValidated)
+    {
+        return $this->cartItemsRepository->incrementQuantity(
+            $dataValidated['productId'],
+            $dataValidated['quantity']);
+    }
 
     public function deleteItem(array $dataValidated)
     {
-        $itemId = $dataValidated['productId'];
-        $this->cartItemsRepository->delete($itemId);
-        return "Item excluido com sucesso!";
+        $productId = $dataValidated['productId'];
+        $item = $this->cartItemsRepository->findCartItemByProductId($productId);
+
+        if(!$item)
+        {
+            return null;
+        }
+
+        return $item->delete();
     }
 }
