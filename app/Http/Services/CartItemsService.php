@@ -40,6 +40,7 @@ class CartItemsService
 
         $dataValidated['cartId'] = $cart->id;
         $productId = $dataValidated['productId'];
+        $product = $this->productService->findProductById($productId);
         
         $stock = $this->getStockItem($productId);
 
@@ -50,12 +51,16 @@ class CartItemsService
 
         $hasItem = $this->cartItemsRepository->findCartItemByProductId($productId);
         
-        if($hasItem){
-            return $this->incrementItem($dataValidated);
-        } 
 
-        return $this->cartItemsRepository->insert($dataValidated);
+        if ($hasItem) {
+            $this->incrementItem($dataValidated);
+        } else {
+            $this->cartItemsRepository->insert($dataValidated);
+        }
+
+        return true;
     }
+
 
     public function getStockItem(string $id)
     {

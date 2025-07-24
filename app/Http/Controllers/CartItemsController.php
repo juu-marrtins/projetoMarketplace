@@ -39,7 +39,23 @@ class CartItemsController extends Controller
 
     public function insert(InsertCartItemsRequest $request)
     {
-        $this->cartItemsService->insertItem($request->validated());
+        $cartItem = $this->cartItemsService->insertItem($request->validated());
+        if ($cartItem === 'no_cart')
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Carrinho não encontrado.'
+            ], 404);
+        }
+
+        if ($cartItem === 'no_stock')
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Estoque insuficiente.'
+            ], 400);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Produto inserido no carrinho com sucesso!'

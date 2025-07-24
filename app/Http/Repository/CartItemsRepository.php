@@ -35,9 +35,9 @@ class CartItemsRepository
 
     public function incrementQuantity(string $productId, int $newQuantity)
     {
-        $product = $this->findProductById($productId);
+        $product = $this->findCartItemByProductId($productId);
 
-        $product->quantity +=  $newQuantity;
+        $product->quantity += $newQuantity;
         $product->save();
 
         return $product;

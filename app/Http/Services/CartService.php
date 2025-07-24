@@ -13,9 +13,10 @@ class CartService
     public function getCartAuth()
     {
         $cart = $this->cartRepository->getCart();
+
         if(!$cart)
         {
-            return "Carrinho vazio.";
+            return null;
         }
         return $cart;
     }
@@ -28,10 +29,13 @@ class CartService
     public function deleteCart()
     {
         $cart = Auth::user()->cart;
+
         if(!$cart){
-            return 'Nenhum carrinho apra excluir';
+            return null;
         }
+
         $cart->delete();
-        return 'Carrinho excluido com sucesso!';
+
+        return $cart;
     }
 }
