@@ -3,6 +3,7 @@
 namespace App\Http\Services\Address;
 
 use App\Http\Repository\Address\AddressRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 
 class AddressService
@@ -15,13 +16,13 @@ class AddressService
         return $this->addressRepository->authAddresses()->get();
     }
 
-    public function getAddressById(string $id)
+    public function findAddressById(string $id)
     {
-        $address = $this->addressRepository->findAddress($id);
-        if(!$address){
-            return 'Endereco invalido.';
+        try {
+            return $this->addressRepository->findAddress($id); 
+        } catch (ModelNotFoundException $e) {
+            return null;
         }
-        return $address;
     }
 
     public function createAddress(array $dataValidated)
@@ -32,22 +33,27 @@ class AddressService
 
     public function updateAddress(array $dataValidated, string $addressId)
     {
-        $address = $this->addressRepository->findAddress($addressId);
-        if(!$address){
-            return 'Endereco invalido.';
+        $address = $this->findAddressById($addressId);
+        
+        if(!$address)
+        {
+            return null;
         }
 
-        return $address->update($dataValidated);
+        $address->update($dataValidated); 
+
+        return $address;
     }
 
     public function deleteAddress(string $addressId)
     {
-        $address = $this->addressRepository->findAddress($addressId);
+        $address = $this->findAddressById($addressId);
 
-        if(!$address){
-            return 'Endereco invalido.';
+        if(!$address || $address->orders()->count() > 0)
+        {
+            return null;
         }
-        $address->delete();
-        return 'Endereco excluido com sucesso!';
+
+        return $address->delete();
     }
 }

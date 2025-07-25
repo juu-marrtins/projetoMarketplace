@@ -18,7 +18,8 @@ return new class extends Migration
             $table->date('endDate');
             $table->decimal('discountPercentage', 5, 2);
             $table->foreignId('productId')
-                    ->constrained('products', 'id');
+                    ->constrained('products', 'id')
+                    ->default(null);
             $table->timestamps();
         });
     }

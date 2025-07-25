@@ -15,14 +15,26 @@ class CategoryController extends Controller
 
     public function index()
     {
+        $categories = $this->categoryService->getAllCategories();
+
+        if($categories->isEmpty())
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum categoria encontrada.'
+            ], 404);
+        }
+
         return response()->json([
-            'Categories' => $this->categoryService->getAllCategories()
+            'success' => true,
+            'data' => $categories
         ], 200);
     }
 
     public function store(StoreCategoryRequest $request)
     {
         return response()->json([
+            'success' => true,
             'message' => 'Categoria criada com sucesso!',
             'category' => $this->categoryService->createCategory($request->validated())
         ], 201);
@@ -30,25 +42,53 @@ class CategoryController extends Controller
 
     public function show(string $categoryId)
     {
+        $category = $this->categoryService->findCategoryById($categoryId);
+
+        if(!$category)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhuma categoria encontrada.'
+            ], 404);
+        }
+
         return response()->json([
-            'category' => $this->categoryService->findCategoryById($categoryId)
+            'success' => true,
+            'data' => $category
         ], 200);
     }
 
     public function update(UpdateCategoryRequest $request, string $categoryId)
     {   
-        $this->categoryService->UpdateCategory($request->validated(), $categoryId);
+        $category = $this->categoryService->UpdateCategory($request->validated(), $categoryId);
+
+        if(!$category)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhuma categoria encontrada.'
+            ], 404);
+        }
 
         return response()->json([
-            'message' => 'Categoria atualizada com sucesso!'
+            'success' => true,
+            'message' => 'Categoria atualizada com sucesso!',
+            'data' => $category
         ], 200);
     }
 
     public function destroy(string $categoryId)
     {
-        $this->categoryService->deleteCategory($categoryId);
-
+        $category = $this->categoryService->deleteCategory($categoryId);
+        if(!$category)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Categoria nao pode ser excluida porque existem produtos associado a ela ou é inexistente.'
+            ], 400);
+        }
         return response()->json([
+            'success' => true,
             'message' => ' Categoria excluida com sucesso!'
         ], 200);
     }

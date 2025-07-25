@@ -15,40 +15,82 @@ class CouponController extends Controller
 
     public function index()
     {
+
+        $coupons = $this->couponService->getAllCoupons(); // OK
+        
+        if($coupons->isEmpty())
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum cupom encontrado.'
+            ], 404);
+        }
         return response()->json([
-            'coupons' => $this->couponService->getAllCoupons()
+            'success' => true,
+            'data' => $coupons
         ], 200);
     }
 
     public function store(StoreCouponRequest $request)
     {
         return response()->json([
-            'message' => 'Cupom criado com sucesso!',
+            'success' => true,
+            'message' => 'Coupon criado com sucesso!',
             'Cupom' => $this->couponService->createCoupon($request->validated())
         ], 201);
     }
 
     public function show(string $couponId)
     {
+
+        $coupon = $this->couponService->findCouponById($couponId);
+
+        if(!$coupon)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum cupom encontrado.'
+            ], 404);
+        }
+
         return response()->json([
-            'Cupom' => $this->couponService->findCouponById($couponId)
+            'success' => true,
+            'data' => $coupon
         ], 200);
     }
 
     public function update(UpdateCouponRequest $request, string $couponId)
     {
-        $this->couponService->updateCoupon($request->validated(), $couponId);
-
+        $coupon = $this->couponService->updateCoupon($request->validated(), $couponId);
+        
+        if(!$coupon)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum cupom encontrado',
+            ], 404);
+        }
         return response()->json([
-            'message' => 'Cupom atualizado com sucesso!'
+            'success' => true,
+            'message' => 'Cupom atualizado com sucesso!',
+            'data' => $coupon
         ], 200);
     }
 
     public function destroy(string $couponId)
     {
-        $this->couponService->deleteCoupon($couponId);
+        $coupon = $this->couponService->deleteCoupon($couponId);
+
+        if(!$coupon)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum cupom encontrado para exclusao ou a pedidos associado a ele.'
+            ], 404);
+        }
 
         return response()->json([
+            'success' => true,
             'message' => 'Cupom excluido com sucesso!'
         ], 200);
     }

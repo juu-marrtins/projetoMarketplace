@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('userId')
-                    ->constrained('users', 'id');
+                    ->constrained('users', 'id')
+                    ->nullOnDelete();
             $table->foreignId('addressId')
                     ->constrained('addresses', 'id');
             $table->dateTime('orderDate');

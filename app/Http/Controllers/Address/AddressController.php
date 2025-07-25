@@ -14,38 +14,82 @@ class AddressController extends Controller
     public function __construct(protected AddressService $addressService)
     {}
 
-    public function addressUser()
+    public function addressUser() //    OK
     {
+        $addresses = $this->addressService->getAllAddressesUser();
+
+        if($addresses->isEmpty())
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum endereco encontrado.'
+            ], 404);
+        }
+
         return response()->json([
-            'addresses' => $this->addressService->getAllAddressesUser()
+            'success' => true,
+            'data' => $addresses
         ], 200);
     }
 
-    public function store(StoreAddressRequest $request)
-    {  
+    public function store(StoreAddressRequest $request) //  OK
+    {   
         return response()->json([
-            'message' => 'Endereco cadastrado com sucesso!',
-            'address' => $this->addressService->createAddress($request->validated())
+            'success' => true,
+            'message' => 'Endereco criado com sucesso!',
+            'data' => $this->addressService->createAddress($request->validated())
             ], 201);
     }
 
-    public function show(string $addressId){
-        return response()->json([
-            'Address' => $this->addressService->getAddressById($addressId)
-        ]);
-    }
+    public function show(string $addressId){ // OK
 
-    public function update(UpdateAddressRequest $request, string $addressId)
-    {
+        $address = $this->addressService->findAddressById($addressId);
+        if(!$address)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Endereco nao encontrado.'
+            ], 404);
+        }
+
         return response()->json([
-            'message' => 'Endereco atualizado com sucesso!'
+            'success' => true,
+            'data' => $address
         ], 200);
     }
 
-    public function destroy(string $addressId)
+    public function update(UpdateAddressRequest $request, string $addressId) // OK
     {
+        $address = $this->addressService->updateAddress($request->validated(), $addressId);
+
+        if(!$address)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Endereco nao encontrado.'
+            ], 404);
+        }
+
         return response()->json([
-            'message' => $this->addressService->deleteAddress($addressId)
+            'success' => true,
+            'message' => 'Endereco atualizado com sucesso!',
+            'data' => $address
+        ], 200);
+    }
+
+    public function destroy(string $addressId) // OK
+    {
+        $address = $this->addressService->deleteAddress($addressId);
+        if(!$address)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Endereco nao encontrado, ou possue comprar com esse endereco'
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Endereco excluido com sucesso'
         ], 200);
     }
 }

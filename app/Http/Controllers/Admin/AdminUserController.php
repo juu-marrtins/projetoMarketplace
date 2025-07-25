@@ -12,10 +12,14 @@ class AdminUserController extends Controller
     public function __construct(protected AdminUserService $adminUserService)
     {}
 
-    public function store(StoreAdminRequest $request)
+    public function store(StoreAdminRequest $request) // OK
     {
-        $this->adminUserService->createModerator($request->validated());
+        $moderator = $this->adminUserService->createModerator($request->validated());
             
-        return response()->json(['message' => 'Usuário da role MODERATOR criado com sucesso!'], 201);
+        return response()->json([
+            'succes' => true,
+            'message' => 'Usuário da role MODERATOR criado com sucesso!',
+            'data' => $moderator
+        ], 201);
     }
 }

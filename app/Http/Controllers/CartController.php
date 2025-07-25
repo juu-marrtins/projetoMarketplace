@@ -10,23 +10,46 @@ class CartController extends Controller
 
     public function cartUser()
     {
+        $cart = $this->cartService->getCartAuth();
+
+        if(!$cart)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Carrinho nao encontrado.'
+            ], 404);
+        }
+
         return response()->json([
-            'Cart' => $this->cartService->getCartAuth()
+            'success' => true,
+            'data' => $cart
         ], 200);
     }
 
     public function store()
     {
         return response()->json([
+            'success' => true,
             'message' => 'Carrinho criado com sucesso!',
-            'Cart' => $this->cartService->createCart()
+            'data' => $this->cartService->createCart()
         ], 201);
     }
 
     public function destroy()
     {
+        $cart = $this->cartService->deleteCart();
+
+        if(!$cart)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Carrinho nao encontrado.'
+            ], 404);
+        }
+
         return response()->json([
-            'message' => $this->cartService->deleteCart()
+            'success' => true,
+            'message' => 'Carrinho excluido com sucesso!'
         ], 200);
     }
 }

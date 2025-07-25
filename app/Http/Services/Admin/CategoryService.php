@@ -3,6 +3,7 @@
 namespace App\Http\Services\Admin;
 
 use App\Http\Repository\Admin\CategoryRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CategoryService
 {
@@ -17,7 +18,11 @@ class CategoryService
 
     public function findCategoryById(string $id)
     {
-        return $this->categoryRepository->findById($id);
+        try {
+            return $this->categoryRepository->findOrFailById($id); 
+        } catch (ModelNotFoundException $e) {
+            return null;
+        }
     }
 
     public function createCategory(array $dataValidated)
@@ -27,14 +32,27 @@ class CategoryService
 
     public function UpdateCategory(array $dataValidated, string $id)
     {
-        $category = $this->categoryRepository->findById($id);
-        return $category->update($dataValidated);
+        $category = $this->findCategoryById($id);
+
+        if(!$category)
+        {
+            return null;
+        }
+
+        $category->update($dataValidated);
+
+        return $category;
     }
 
     public function deleteCategory(string $id)
     {
-        $category = $this->categoryRepository->findById($id);
+        $category = $this->findCategoryById($id);
+
+        if($category == null || $category->products()->count() > 0)
+        {
+            return null;
+        }
+
         return $category->delete();
     }
-
 }

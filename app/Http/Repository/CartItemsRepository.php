@@ -12,14 +12,10 @@ class CartItemsRepository
         $cart = Auth::user()->cart()->with('cartItems')->first();
 
         if(!$cart){
-            return 'Usuário não possui carrinho';
+            return 'no_cart';
         }
 
         $items = $cart->cartItems;
-
-        if($items->isEmpty()){
-            return 'Carrinho vazio';
-        }
 
         return $items;
     }
@@ -29,7 +25,7 @@ class CartItemsRepository
         return CartItem::create($dataValidated);
     }
 
-    public function findItemById(string $productId)
+    public function findCartItemByProductId(string $productId)
     {
         $cartId = Auth::user()->cart->id;
         return CartItem::where('cartId', $cartId)
@@ -39,17 +35,11 @@ class CartItemsRepository
 
     public function incrementQuantity(string $productId, int $newQuantity)
     {
-        $product = $this->findItemById($productId);
+        $product = $this->findCartItemByProductId($productId);
 
-        $product->quantity +=  $newQuantity;
+        $product->quantity += $newQuantity;
         $product->save();
 
         return $product;
-    }
-
-    public function delete(string $itemId)
-    {
-        $item = $this->findItemById($itemId);
-        return $item->delete();
     }
 }

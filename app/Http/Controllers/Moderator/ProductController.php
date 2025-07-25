@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Moderator\StoreProductRequest;
 use App\Http\Requests\Moderator\UpdateProductRequest;
 use App\Http\Services\Moderator\ProductService;
-use App\Models\Product;
+
 class ProductController extends Controller
 {
 
@@ -15,41 +15,90 @@ class ProductController extends Controller
 
     public function index()
     {
+        $products = $this->productService->getAllProducts();
+
+        if($products->isEmpty())
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum produto encontrado.'
+            ], 404);
+        }
+
         return response()->json([
-            'products' => $this->productService->getAllProducts()
+            'success' => true,
+            'data' => $products
         ], 200);
     }
 
     public function store(StoreProductRequest $request)
     {
-        $this->productService->createProduct($request->validated());
-
         return response()->json([
-            'message' => 'Produto cadastrado com sucesso!'
+            'success' => true,
+            'message' => 'Produto cadastrado com sucesso!',
+            'data' =>  $this->productService->createProduct($request->validated())
         ], 201);
     }
 
     public function show(string $productId)
     {
+        $product = $this->productService->findProductById($productId);
+
+        if(!$product)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Produto nao encontrado.'
+            ], 404);
+        }
+
         return response()->json([
-            'product' => $this->productService->getProductById($productId)
+            'success' => true,
+            'data' => $product
         ], 200);
     }
 
-    public function update(UpdateProductRequest $request, string $productId)
+    public function update(UpdateProductRequest $request, string $productId) // APREI AUQI
     {
-        $this->productService->updateProduct($request->validated(), $productId);
+        $product = $this->productService->updateProduct($request->validated(), $productId);
+
+        if(!$product)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Produto nao encontrado'
+            ], 404);
+        }
 
         return response()->json([
-            'message' => 'Produto atualizado com sucesso!'
+            'success' => true,
+            'message' => 'Produto atualizado com sucesso!',
+            'data' => $product
         ], 200);
     }
 
     public function destroy(string $productId)
     {
-        $this->productService->deleteProduct($productId);
+        $product = $this->productService->deleteProduct($productId);
+
+        if(!$product)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Produto nao encontrado.'
+            ], 404);
+        }
+        if ($product === 'used_in_orders')
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Produto ja foi vendido e nao pode ser excluido.'
+            ], 409);
+        }
+
         
         return response()->json([
+            'success' => true,
             'message' => 'Produto excluido com sucesso!'
         ], 200);
     }

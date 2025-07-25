@@ -15,41 +15,82 @@ class DiscountController extends Controller
 
     public function index()
     {
+        $discounts = $this->discountService->getAllDiscounts();
+
+        if($discounts->isEmpty())
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nenhum desconto encontrado.'
+            ], 404);
+        }
+
         return response()->json([
-            'discounts' => $this->discountService->getAllDiscounts()
+            'success' => true,
+            'data' => $discounts
         ], 200);
     }
 
     public function store(StoreDiscountRequest $request)
     {
         return response()->json([
-            'message' => 'Disconto criado com sucesso!',
-            'discount' => $this->discountService->createDiscount($request->validated())
+            'success' => true,
+            'message' => 'Desconto criado com sucesso!',
+            'data' => $this->discountService->createDiscount($request->validated())
         ], 201);
     }
 
     public function show(string $discountId)
     {
+        $discount = $this->discountService->findDiscountById($discountId);
+
+        if(!$discount)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Desconto nao encontrado.'
+            ], 404);
+        }
         return response()->json([
-            'Discount' => $this->discountService->findDiscountById($discountId)
+            'success' => true,
+            'data' => $discount
         ], 200);
     }
     public function update(UpdateDiscountRequest $request, string $discountId)
     {
-        $this->discountService->UpdateDiscount($request->validated(), $discountId);
+        $discount = $this->discountService->UpdateDiscount($request->validated(), $discountId);
 
+        if(!$discount)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Desconto nao encontrado.'
+            ], 404);
+        }
         return response()->json([
-            'message' => 'Disconto atualizado com sucesso!'
+            'success' => true,
+            'message' => 'Desconto atualizado com sucesso!',
+            'data' => $discount
         ], 200);
     }
 
     public function destroy(string $discountId)
     {
-        $this->discountService->deleteDiscount($discountId);
-        
+        $discount = $this->discountService->deleteDiscount($discountId);
+
+        if(!$discount)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Desconto nao encontrado ou possue produtos associado'
+            ], 404);
+        }
+
         return response()->json([
-            'message' => 'Disconto excluido com sucesso!'
+            'success' => true,
+            'message' => 'Desconto excluido com sucesso!',
         ], 200);
+
     }
 }
 

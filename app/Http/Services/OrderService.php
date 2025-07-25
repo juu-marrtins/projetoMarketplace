@@ -16,13 +16,22 @@ class OrderService
 
     public function getAllOrders()
     {
-        return $this->orderRepository->all();
+        $orders = $this->orderRepository->all();
+
+        if(!$orders)
+        {
+            return null;
+        }
+        return $orders;
     }
 
-    public function getOrderByUser()
+    public function getAllOrdersOfAuthenticatedUser()
     {
-        return $this->orderRepository->findByUser();
+        $orders = $this->orderRepository->getAllByUserId(Auth::id());
+
+        return $orders->isEmpty() ? null : $orders;
     }
+
 
     public function createOrder(array $dataValidated)
     {   
@@ -33,7 +42,7 @@ class OrderService
         return $order;
     }
 
-        public function createOrderItem(Order $order)
+    public function createOrderItem(Order $order)
     {
         $cart = Auth::user()->cart()->with('items.product.discounts')->first();
 
@@ -81,6 +90,23 @@ class OrderService
         $product->save();
     }
 
+    public function restoreStock(string $orderId)
+    {
+        $order = $this->orderRepository->findOrderById($orderId);
+        
+        if (!$order) {
+            return null;
+        }
+        foreach ($order->orderItems as $item) {
+            $product = $item->product;
+            if ($product) {
+                $product->stock += $item->quantity;
+                $product->save();
+            }
+        }
+        return true;
+    }
+
     public function getCoupon(float $totalOrder, Coupon $coupon)
     {
         $amountCoupon = $totalOrder * ($coupon->discountPercentage/100);
@@ -96,10 +122,10 @@ class OrderService
 
     public function getOrderById(string $orderId)
     {
-        $order = $this->orderRepository->findByOrderUserId($orderId);
+        $order = $this->orderRepository->findByUserAndId(Auth::id(), $orderId);
 
         if(!$order){
-            return "Pedido nao encontrado";
+            return null;
         }
 
         return $order;
@@ -108,28 +134,34 @@ class OrderService
     public function updateStatusOrder(string $orderId, string $newStatus)
     {
         $order = $this->orderRepository->findOrderById($orderId);
+
         if(!$order)
         {
-            return "Pedido nao encontrado";
+            return null;
         }
 
-        return $this->orderRepository->update($order, $newStatus);
+        if ($newStatus === 'CANCELED') {
+            $success = $this->restoreStock($orderId);
+            if (!$success) {
+                return null;
+            }
+        }
+
+        $updateOrder = $this->orderRepository->update($order, $newStatus);
+
+        return $updateOrder;
     }
 
     public function deleteOrder(string $orderId)
     {
-        $orders = $this->orderRepository->findByUser();
-        
-        $orderDelete = $orders->where('id', $orderId)->first();
+        $orderDelete = $this->orderRepository->findByUserAndId(Auth::id(), $orderId);
 
-        if(!$orderDelete)
-        {
-            return "Pedido nao encontrado";
+        if(!$orderDelete) {
+            return null;
         }
         
         $orderDelete->delete();
 
-        return "Pedido cancelado com sucesso!";
+        return $orderDelete;
     }
-
 }

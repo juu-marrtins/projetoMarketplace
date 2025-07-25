@@ -3,6 +3,7 @@
 namespace App\Http\Services\Moderator;
 
 use App\Http\Repository\Moderator\ProductRepository;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProductService
 {
@@ -14,9 +15,13 @@ class ProductService
         return $this->productRepository->All();
     }
 
-    public function getProductById(string $id)
+    public function findProductById(string $id)
     {
-        return $this->productRepository->findById($id);
+        try {
+            return $this->productRepository->findById($id); 
+        } catch (ModelNotFoundException $e) {
+            return null;
+        }
     }
 
     public function createProduct(array $dataValidated)
@@ -26,15 +31,29 @@ class ProductService
 
     public function updateProduct(array $dataValidated, string $id)
     {
-        $product = $this->productRepository->findById($id);
+        $product = $this->findProductById($id);
         
-        return $product->update($dataValidated);
+        if(!$product)
+        {
+            return null;
+        }
+        $product->update($dataValidated);
+
+        return $product;
     }
 
     public function deleteProduct(string $id)
     {
-        $product = $this->productRepository->findById($id);
+        $product = $this->findProductById($id);
 
-        return $product->delete();
+        if(!$product)
+        {
+            return null;
+        }
+        
+        $product->cartItems()->delete();
+        $product->delete();
+
+        return $product;
     }
 }
