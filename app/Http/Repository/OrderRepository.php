@@ -4,27 +4,13 @@ namespace App\Http\Repository;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-use Illuminate\Support\Facades\Auth;
+
 
 class OrderRepository
 {
     public function all()
     {
         return Order::all();
-    }
-
-    public function findByUser()
-    {
-        $user = Auth::user();
-
-        return $user->orders()->get();
-    }
-
-    public function findByOrderUserId(string $orderId)
-    {
-        $user = Auth::user();
-
-        return $user->orders()->where('id', $orderId)->first();
     }
 
     public function create(array $dataValidated)
@@ -55,5 +41,15 @@ class OrderRepository
         return $order;
     }
 
+    public function findByUserAndId(string $userId, string $orderId)
+    {
+        return Order::where('userId', $userId)
+                    ->where('id', $orderId)
+                    ->first();
+    }
 
+        public function getAllByUserId(string $userId)
+    {
+        return Order::where('userId', $userId)->get();
+    }
 }

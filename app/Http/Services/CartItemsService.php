@@ -33,24 +33,26 @@ class CartItemsService
     {
         $cart = Auth::user()->cart;
         
-        if(!$cart)
-        {
+        if (!$cart) {
             return 'no_cart';
         }
 
         $dataValidated['cartId'] = $cart->id;
         $productId = $dataValidated['productId'];
         $product = $this->productService->findProductById($productId);
-        
-        $stock = $this->getStockItem($productId);
 
-        if($stock === null || $stock < $dataValidated['quantity'])
-        {
+        $stock = $this->getStockItem($productId);
+        if ($stock === null) {
             return 'no_stock';
         }
 
         $hasItem = $this->cartItemsRepository->findCartItemByProductId($productId);
-        
+        $newQty = $dataValidated['quantity'];
+        $currentQty = $hasItem ? $hasItem->quantity : 0;
+
+        if (($currentQty + $newQty) > $stock) {
+            return 'no_stock';
+        }
 
         if ($hasItem) {
             $this->incrementItem($dataValidated);
