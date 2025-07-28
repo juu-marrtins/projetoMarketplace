@@ -23,15 +23,16 @@ class UpdateProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'categoryId' => 'required|exists:categories,id|integer',
+            'categoryId' => 'sometimes|exists:categories,id|integer',
             'name' => [
-                'required',
+                'sometimes',
                 'string',
                 'min:3',
                 'max:255',
                 Rule::unique('products')->ignore($this->product)],
-            'stock' => 'required|integer|min:1|max:255',
-            'price'=> 'required|decimal:2|min:1'
+            'stock' => 'sometimes|integer|min:1|max:255',
+            'price'=> 'sometimes|decimal:2|min:1',
+            'image' => 'sometimes|nullable|image'
         ];
     }
 }

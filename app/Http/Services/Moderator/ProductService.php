@@ -32,11 +32,12 @@ class ProductService
     public function updateProduct(array $dataValidated, string $id)
     {
         $product = $this->findProductById($id);
-        
+            
         if(!$product)
         {
             return null;
         }
+
         $product->update($dataValidated);
 
         return $product;
