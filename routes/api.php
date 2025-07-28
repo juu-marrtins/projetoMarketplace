@@ -19,7 +19,7 @@ Route::middleware(['auth:sanctum', 'moderator'])->group(function (){
     Route::put('/orders/{orderId}', [OrderController::class, 'update']);
     Route::get('/orders/all', [OrderController::class, 'allOrders']);
     Route::delete('/products/{productId}', [ProductController::class, 'destroy']);
-    Route::put('/products/{productId}', [ProductController::class, 'update']);
+    Route::post('/products/{productId}', [ProductController::class, 'update']);
     Route::post('/products/', [ProductController::class, 'store']);
 });
 

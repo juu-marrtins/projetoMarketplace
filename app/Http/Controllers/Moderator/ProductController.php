@@ -33,10 +33,18 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request)
     {
+        $dataValidated = $request->validated();
+
+        if($request->hasFile('image'))
+        {
+            $imagePath = $request->file('image')->store('products', 'public');
+            $dataValidated['image'] =  $imagePath;
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Produto cadastrado com sucesso!',
-            'data' =>  $this->productService->createProduct($request->validated())
+            'data' =>  $this->productService->createProduct($dataValidated)
         ], 201);
     }
 
@@ -58,9 +66,17 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function update(UpdateProductRequest $request, string $productId) // APREI AUQI
+    public function update(UpdateProductRequest $request, string $productId) 
     {
-        $product = $this->productService->updateProduct($request->validated(), $productId);
+        $dataValidated = $request->validated();
+        
+        if($request->hasFile('image'))
+        {
+            $imagePath = $request->file('image')->store('products', 'public');
+            $dataValidated['image'] =  $imagePath;
+        }
+
+        $product = $this->productService->updateProduct($dataValidated, $productId);
 
         if(!$product)
         {
