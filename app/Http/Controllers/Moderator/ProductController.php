@@ -69,7 +69,7 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, string $productId) 
     {
         $dataValidated = $request->validated();
-
+        
         if($request->hasFile('image'))
         {
             $imagePath = $request->file('image')->store('products', 'public');
