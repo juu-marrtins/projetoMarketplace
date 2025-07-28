@@ -31,7 +31,7 @@ class UpdateProductRequest extends FormRequest
                 'max:255',
                 Rule::unique('products')->ignore($this->product)],
             'stock' => 'required|integer|min:1|max:255',
-            'price'=> 'required|decimal:2|min:1'
+            'price'=> 'required|min:1'
         ];
     }
 }
