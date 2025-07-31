@@ -22,6 +22,7 @@ class CartItemsController extends Controller
                 'message' => 'Carrinho nao encontrado.'
             ], 404);
         }
+        
         if ($cartItems === null || $cartItems->isEmpty())
         {
             return response()->json([

@@ -78,11 +78,12 @@ class DiscountController extends Controller
     {
         $discount = $this->discountService->deleteDiscount($discountId);
 
+        //arrumar para caso ele nao exista
         if(!$discount)
         {
             return response()->json([
                 'success' => false,
-                'message' => 'Desconto nao encontrado ou possue produtos associado'
+                'message' => 'Desconto possue produtos associado'
             ], 404);
         }
 

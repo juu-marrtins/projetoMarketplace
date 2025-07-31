@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Services\User\UserService;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -14,7 +15,9 @@ class UserController extends Controller
     
     public function me()
     {
-        $user = $this->userService->getAuthUser();
+        $user = Auth::user();
+
+        //$this->authorize('view', $user);
 
         return response()->json([
             'success' => true,
@@ -26,7 +29,7 @@ class UserController extends Controller
     }
 
     public function store(StoreUserRequest $request)
-    {                    
+    {           
         return response()->json([
             'success' => true,
             'message' => 'Usuário criado com sucesso!',
@@ -36,16 +39,34 @@ class UserController extends Controller
 
     public function update(UpdateUserRequest $request)
     {
+        $user = Auth::user();
+
+        //$this->authorize('update', $user);
+
+        $data = $this->userService->updateUser($request->validated());
+
+        if(!$data)
+        {
+            return response()->json([
+                'success' => false,
+                'message' => 'Nao possue permissao para alterar outro perfil.',
+                'data' => []
+            ], 403);
+        }
+
         return response()->json([ 
             'success' => true,
             'message' => 'Usuario atualizado com sucesso!',
-            'data' => $this->userService->updateUser($request->validated())
+            'data' => $data
         ], 200);
     }
 
     public function destroy()
     {
-        $this->userService->deleteUser();
+        $user = Auth::user();
+        //$this->authorize('delete', $user);
+
+        $this->userService->deleteUser($user);
 
         return response()->json([
             'success' => true,

@@ -104,6 +104,7 @@ class ProductController extends Controller
                 'message' => 'Produto nao encontrado.'
             ], 404);
         }
+        
         if ($product === 'used_in_orders')
         {
             return response()->json([
