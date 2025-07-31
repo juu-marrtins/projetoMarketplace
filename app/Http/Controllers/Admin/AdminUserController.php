@@ -17,7 +17,7 @@ class AdminUserController extends Controller
         $moderator = $this->adminUserService->createModerator($request->validated());
             
         return response()->json([
-            'succes' => true,
+            'success' => true,
             'message' => 'Usuário da role MODERATOR criado com sucesso!',
             'data' => $moderator
         ], 201);
