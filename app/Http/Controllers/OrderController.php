@@ -89,6 +89,7 @@ class OrderController extends Controller
     {
         $dataValidated = $request->validated();
         $order = $this->orderService->updateStatusOrder($orderId, $dataValidated['status']);
+        
         if(!$order)
         {
             return response()->json([

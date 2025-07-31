@@ -80,12 +80,14 @@ class CategoryController extends Controller
     public function destroy(string $categoryId)
     {
         $category = $this->categoryService->deleteCategory($categoryId);
+
+        //arrumar para caso ela nao exista
         if(!$category)
         {
             return response()->json([
                 'success' => false,
-                'message' => 'Categoria nao pode ser excluida porque existem produtos associado a ela ou é inexistente.'
-            ], 400);
+                'message' => 'Categoria nao pode ser excluida porque existem produtos associados.'
+            ], 409);
         }
         return response()->json([
             'success' => true,

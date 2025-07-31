@@ -18,12 +18,15 @@ class AuthController extends Controller
         if(!$createTokenOrFail)
         {
             return response()->json([
-            'message' => 'Credenciais Invalidas.'
-            ], 400);
+                'success' => false,
+                'message' => 'Acesso negado. Verifique suas credenciais',
+                'data' => []
+            ], 401);
         }
         return response()->json([
+            'success' => true,
             'message' => 'Token criado com sucesso',
-            $createTokenOrFail
-        ], 201);
+            'data' => $createTokenOrFail
+        ], 200);
     }
 }

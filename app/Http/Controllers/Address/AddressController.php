@@ -80,12 +80,13 @@ class AddressController extends Controller
     public function destroy(string $addressId) // OK
     {
         $address = $this->addressService->deleteAddress($addressId);
+        //arrumar quando nao existir 
         if(!$address)
         {
             return response()->json([
                 'success' => false,
-                'message' => 'Endereco nao encontrado, ou possue comprar com esse endereco'
-            ], 404);
+                'message' => 'Endereco possue compras com esse endereco.'
+            ], 409);
         }
         return response()->json([
             'success' => true,

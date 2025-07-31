@@ -31,11 +31,10 @@ class UserService
         return $user;
     }
 
-    public function deleteUser()
+    public function deleteUser(User $authUser)
     {
-        $user = $this->getAuthUser();
-        $user->delete();
+        $authUser->delete();
 
-        return $user;
+        return $authUser;
     }
 }

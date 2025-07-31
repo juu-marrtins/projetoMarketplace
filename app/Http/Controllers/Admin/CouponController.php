@@ -81,11 +81,12 @@ class CouponController extends Controller
     {
         $coupon = $this->couponService->deleteCoupon($couponId);
 
+        //arrumar para caso ele nao exista
         if(!$coupon)
         {
             return response()->json([
                 'success' => false,
-                'message' => 'Nenhum cupom encontrado para exclusao ou a pedidos associado a ele.'
+                'message' => 'O cupom possue pedidos associado a ele.'
             ], 404);
         }
 
