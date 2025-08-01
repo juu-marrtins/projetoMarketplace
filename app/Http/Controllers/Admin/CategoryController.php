@@ -25,13 +25,18 @@ class CategoryController extends Controller
             return ApiResponse::fail('Nenhuma categoria encontrada.', 404);
         }
 
-        return ApiResponse::success(CategoryResource::collection($categories), 200);
+        return ApiResponse::success(
+            'Listagem de categorias.',
+            CategoryResource::collection($categories),
+            200);
     }
 
     public function store(StoreCategoryRequest $request)
     {
-        return ApiResponse::success(new CategoryResource(
-            $this->categoryService->createCategory($request->validated())), 201);
+        return ApiResponse::success(
+            'Categoria criada com sucesso.',
+            new CategoryResource($this->categoryService->createCategory($request->validated())),
+            201);
     }
 
     public function show(string $categoryId)
@@ -43,7 +48,10 @@ class CategoryController extends Controller
             return ApiResponse::fail('Categoria não encontrada.', 404);
         }
 
-        return ApiResponse::success(new CategoryResource($category), 200);
+        return ApiResponse::success(
+            'Categria encontrada',
+            new CategoryResource($category),
+            200);
     }
 
     public function update(UpdateCategoryRequest $request, string $categoryId)
@@ -55,7 +63,10 @@ class CategoryController extends Controller
             return ApiResponse::fail('Categoria não encontrada', 404);
         }
 
-        return ApiResponse::success(new CategoryResource($category), 200);
+        return ApiResponse::success(
+            'Categoria atualizada com sucesso.',
+            new CategoryResource($category),
+            200);
     }
 
     public function destroy(string $categoryId)

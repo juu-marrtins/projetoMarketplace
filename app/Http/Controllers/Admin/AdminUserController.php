@@ -17,6 +17,7 @@ class AdminUserController extends Controller
     public function store(StoreAdminRequest $request) // SUPER OK
     {
         return ApiResponse::success(
+            'Moderator criado com sucesso.',
             new UserResource($this->adminUserService->createModerator($request->validated())),
             201);
     }

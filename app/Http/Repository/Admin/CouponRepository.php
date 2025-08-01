@@ -4,7 +4,7 @@ namespace App\Http\Repository\Admin;
 use App\Models\Coupon;
 
 class CouponRepository{
-    public function All()
+    public function all()
     {
         return Coupon::all();
     }
