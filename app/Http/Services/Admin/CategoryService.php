@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\Admin;
 
+use App\Enums\Admin\CategoryDeleteStatus;
 use App\Http\Repository\Admin\CategoryRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -13,14 +14,14 @@ class CategoryService
 
     public function getAllCategories()
     {
-        return $this->categoryRepository->All();
+        return $this->categoryRepository->all();
     }
 
     public function findCategoryById(string $id)
     {
         try {
             return $this->categoryRepository->findOrFailById($id); 
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             return null;
         }
     }
@@ -30,7 +31,7 @@ class CategoryService
         return $this->categoryRepository->create($dataValidated);
     }
 
-    public function UpdateCategory(array $dataValidated, string $id)
+    public function updateCategory(array $dataValidated, string $id)
     {
         $category = $this->findCategoryById($id);
 
@@ -48,11 +49,16 @@ class CategoryService
     {
         $category = $this->findCategoryById($id);
 
-        if($category == null || $category->products()->count() > 0)
+        if($category == null)
         {
-            return null;
+            return CategoryDeleteStatus::NOT_FOUND;
+        }
+        if($category->products()->count() > 0)
+        {
+            return CategoryDeleteStatus::HAS_PRODUCTS;
         }
 
-        return $category->delete();
+        $category->delete();
+        return CategoryDeleteStatus::DELETED;
     }
 }

@@ -9,7 +9,6 @@ use App\Http\Requests\Address\StoreAddressRequest;
 use App\Http\Requests\Address\UpdateAddressRequest;
 use App\Http\Resources\Address\AddressResource;
 use App\Http\Services\Address\AddressService;
-use App\Models\Address;
 use Illuminate\Support\Facades\Auth;
 
 class AddressController extends Controller
@@ -27,8 +26,7 @@ class AddressController extends Controller
         }
 
         return ApiResponse::success(
-            AddressResource::collection($addresses),
-            200);
+            AddressResource::collection($addresses), 200);
     }
 
     public function store(StoreAddressRequest $request) // SUPER OK
@@ -40,7 +38,8 @@ class AddressController extends Controller
                 201);
     }
 
-    public function show(string $addressId){  // SUPER OK
+    public function show(string $addressId)
+    {  // SUPER OK
 
         $address = $this->addressService->findAddressById(Auth::user(),$addressId);
 
@@ -80,6 +79,6 @@ class AddressController extends Controller
             return ApiResponse::fail('O endereco possue pedidos associados.', 409);
         }
         
-        return ApiResponse::success(new AddressResource($address), 200);
+        return response()->noContent();
     }
 }

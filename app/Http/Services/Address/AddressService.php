@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\Address;
 
+use App\Enums\Address\AddressDeleteStatus;
 use App\Http\Repository\Address\AddressRepository;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -51,14 +52,15 @@ class AddressService
 
         if(!$address)
         {
-            return 'no_address';
+            return AddressDeleteStatus::NOT_FOUND;
         }
 
         if($address->orders()->count() > 0)
         {
-            return 'exist_orders';
+            return AddressDeleteStatus::HAS_ORDERS;
         }
 
-        return $address->delete();
+        $address->delete();
+        return AddressDeleteStatus::DELETED;
     }
 }
