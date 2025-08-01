@@ -49,7 +49,7 @@ class CategoryService
     {
         $category = $this->findCategoryById($id);
 
-        if($category == null)
+        if(!$category)
         {
             return CategoryDeleteStatus::NOT_FOUND;
         }
