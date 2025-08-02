@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Admin\CouponDeleteStatus;
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Coupon\StoreCouponRequest;
 use App\Http\Requests\Admin\Coupon\UpdateCouponRequest;
+use App\Http\Resources\Admin\CouponResource;
 use App\Http\Services\Admin\CouponService;
 
 class CouponController extends Controller
@@ -15,29 +18,24 @@ class CouponController extends Controller
 
     public function index()
     {
-
-        $coupons = $this->couponService->getAllCoupons(); // OK
+        $coupons = $this->couponService->getAllCoupons();
         
         if($coupons->isEmpty())
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Nenhum cupom encontrado.'
-            ], 404);
+            return ApiResponse::fail('Nenhum cupom encontrado.', 404);
         }
-        return response()->json([
-            'success' => true,
-            'data' => $coupons
-        ], 200);
+        return ApiResponse::success(
+            'Listagem de cupons',
+            CouponResource::collection($coupons),
+            200);
     }
 
     public function store(StoreCouponRequest $request)
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Coupon criado com sucesso!',
-            'Cupom' => $this->couponService->createCoupon($request->validated())
-        ], 201);
+        return ApiResponse::success(
+            'Cupom criado com sucesso.',
+            new CouponResource($this->couponService->createCoupon($request->validated())),
+            201);
     }
 
     public function show(string $couponId)
@@ -47,16 +45,13 @@ class CouponController extends Controller
 
         if(!$coupon)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Nenhum cupom encontrado.'
-            ], 404);
+            return ApiResponse::fail('Cupom não encontrado', 404);  
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $coupon
-        ], 200);
+        return ApiResponse::success(
+            'Cupom encontrado',
+            new CouponResource($coupon),
+            200);
     }
 
     public function update(UpdateCouponRequest $request, string $couponId)
@@ -65,34 +60,28 @@ class CouponController extends Controller
         
         if(!$coupon)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Nenhum cupom encontrado',
-            ], 404);
+            return ApiResponse::fail('Cupom não encontrado', 404);
         }
-        return response()->json([
-            'success' => true,
-            'message' => 'Cupom atualizado com sucesso!',
-            'data' => $coupon
-        ], 200);
+
+        return ApiResponse::success(
+            'Cupom atualizado com sucesso.',
+            new CouponResource($coupon),
+            200);
     }
 
     public function destroy(string $couponId)
     {
         $coupon = $this->couponService->deleteCoupon($couponId);
 
-        //arrumar para caso ele nao exista
-        if(!$coupon)
+        if($coupon === CouponDeleteStatus::HAS_ORDERS)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'O cupom possue pedidos associado a ele.'
-            ], 404);
+            return ApiResponse::fail('O cupom possue pedidos associado a ele.', 409);
+        }
+        if($coupon === CouponDeleteStatus::NOT_FOUND)
+        {
+            return ApiResponse::fail('Cupom não encontrado.', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Cupom excluido com sucesso!'
-        ], 200);
+        return response()->noContent();
     }
 }

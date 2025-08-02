@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\Admin;
 
+use App\Enums\Admin\DiscountDeleteStatus;
 use App\Http\Repository\Admin\DiscountRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -18,7 +19,7 @@ class DiscountService{
     {
         try {
             return $this->discountRepository->findById($id); 
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             return null;
         }
     }
@@ -44,11 +45,13 @@ class DiscountService{
     {
         $discount = $this->findDiscountById($id);
 
-        if(!$discount || $discount->product != null)
+        if(!$discount)
         {
-            return null;
+            return DiscountDeleteStatus::NOT_FOUND;
         }
 
-        return $discount->delete();
+        $discount->delete();
+
+        return DiscountDeleteStatus::DELETED;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\Admin;
 
+use App\Enums\Admin\CouponDeleteStatus;
 use App\Http\Repository\Admin\CouponRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -12,14 +13,14 @@ class CouponService{
 
     public function getAllCoupons()
     {
-        return $this->couponRepository->All();
+        return $this->couponRepository->all();
     }
 
     public function findCouponById(string $id)
     {
         try {
             return $this->couponRepository->findById($id); 
-        } catch (ModelNotFoundException $e) {
+        } catch (ModelNotFoundException) {
             return null;
         }
     }
@@ -37,6 +38,7 @@ class CouponService{
         {
             return null;
         }
+
         $coupon->update($dataValidated);
 
         return $coupon;
@@ -46,11 +48,17 @@ class CouponService{
     {
         $coupon = $this->findCouponById($id);
 
-        if(!$coupon || $coupon->orders()->count() > 0) 
+        if(!$coupon) 
         {
-            return null;
+            return CouponDeleteStatus::NOT_FOUND;
+        }
+        if($coupon->orders()->count() > 0)
+        {
+            return CouponDeleteStatus::HAS_ORDERS;
         }
 
-        return $coupon->delete();
+        $coupon->delete();
+
+        return CouponDeleteStatus::DELETED;
     }
 }

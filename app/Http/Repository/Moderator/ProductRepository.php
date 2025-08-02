@@ -6,7 +6,7 @@ use App\Models\Product;
 
 class ProductRepository
 {
-    public function All()
+    public function all()
     {
         return Product::all();
     }

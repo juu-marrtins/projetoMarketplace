@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\Admin\DiscountDeleteStatus;
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Discount\StoreDiscountRequest;
 use App\Http\Requests\Admin\Discount\UpdateDiscountRequest;
+use App\Http\Resources\Admin\DiscountResource;
 use App\Http\Services\Admin\DiscountService;
 
 class DiscountController extends Controller
@@ -19,25 +22,21 @@ class DiscountController extends Controller
 
         if($discounts->isEmpty())
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Nenhum desconto encontrado.'
-            ], 404);
+            return ApiResponse::fail('Nenhum desconto encontrado.', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $discounts
-        ], 200);
+        return ApiResponse::success(
+            'Listagem de descontos.', 
+            DiscountResource::collection($discounts),
+            200);
     }
 
     public function store(StoreDiscountRequest $request)
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Desconto criado com sucesso!',
-            'data' => $this->discountService->createDiscount($request->validated())
-        ], 201);
+        return ApiResponse::success(
+            'Desconto criado com sucesso.',
+            new DiscountResource($this->discountService->createDiscount($request->validated())),
+            201);
     }
 
     public function show(string $discountId)
@@ -46,15 +45,13 @@ class DiscountController extends Controller
 
         if(!$discount)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Desconto nao encontrado.'
-            ], 404);
+            return ApiResponse::fail('Desconto não encontrado.', 404);
         }
-        return response()->json([
-            'success' => true,
-            'data' => $discount
-        ], 200);
+        return ApiResponse::success(
+            'Desconto encontrado',
+            new DiscountResource($discount),
+            200);
+
     }
     public function update(UpdateDiscountRequest $request, string $discountId)
     {
@@ -62,36 +59,25 @@ class DiscountController extends Controller
 
         if(!$discount)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Desconto nao encontrado.'
-            ], 404);
+            return ApiResponse::fail('Desconto não encontrado.', 404);
         }
-        return response()->json([
-            'success' => true,
-            'message' => 'Desconto atualizado com sucesso!',
-            'data' => $discount
-        ], 200);
+
+        return ApiResponse::success(
+            'Desconto atualizado com sucesso.',
+            new DiscountResource($discount),
+            200);
     }
 
     public function destroy(string $discountId)
     {
         $discount = $this->discountService->deleteDiscount($discountId);
 
-        //arrumar para caso ele nao exista
-        if(!$discount)
+        if($discount === DiscountDeleteStatus::NOT_FOUND)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Desconto possue produtos associado'
-            ], 404);
+            return ApiResponse::fail('Desconto não encontrado.', 404);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Desconto excluido com sucesso!',
-        ], 200);
-
+        
+        return response()->noContent();
     }
 }
 

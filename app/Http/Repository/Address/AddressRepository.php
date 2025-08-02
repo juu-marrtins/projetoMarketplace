@@ -3,22 +3,18 @@
 namespace App\Http\Repository\Address;
 
 use App\Models\Address;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AddressRepository
 {
-    public function authAddresses()
-    {
-        return Auth::user()->addresses();
-    }
 
-    public function findAddress(string $id)
+    public function findAddress(User $user, string $id)
     {
-        return $this->authAddresses()->findOrFail($id);
+        return $user->addresses()->find($id);
     }
 
     public function create(array $dataValidated)
     {
         return Address::create($dataValidated);
     }
-}
+}   

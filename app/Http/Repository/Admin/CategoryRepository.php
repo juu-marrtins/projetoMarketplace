@@ -6,7 +6,7 @@ use App\Models\Category;
 
 class CategoryRepository
 {
-    public function All()
+    public function all()
     {
         return Category::all();
     }

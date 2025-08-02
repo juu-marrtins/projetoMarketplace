@@ -2,95 +2,90 @@
 
 namespace App\Http\Controllers\Address;
 
+use App\Enums\Address\AddressDeleteStatus;
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Address\StoreAddressRequest;
 use App\Http\Requests\Address\UpdateAddressRequest;
+use App\Http\Resources\Address\AddressResource;
 use App\Http\Services\Address\AddressService;
-use App\Models\Address;
+use Illuminate\Support\Facades\Auth;
 
 class AddressController extends Controller
 {
-
     public function __construct(protected AddressService $addressService)
     {}
 
-    public function addressUser() //    OK
+    public function addressUser() // SUPER OK
     {
-        $addresses = $this->addressService->getAllAddressesUser();
+        $addresses = $this->addressService->getAllAddressesUser(Auth::user());
 
         if($addresses->isEmpty())
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Nenhum endereco encontrado.'
-            ], 404);
+            return ApiResponse::fail('Nenhum endereco encontrado', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $addresses
-        ], 200);
+        return ApiResponse::success(
+            'Listagem de enderecos',
+            AddressResource::collection($addresses),
+            200);
     }
 
-    public function store(StoreAddressRequest $request) //  OK
+    public function store(StoreAddressRequest $request) // SUPER OK
     {   
-        return response()->json([
-            'success' => true,
-            'message' => 'Endereco criado com sucesso!',
-            'data' => $this->addressService->createAddress($request->validated())
-            ], 201);
+        return ApiResponse::success(
+            'Endereco criado com sucesso.',
+            new AddressResource($this->addressService->createAddress($request->validated(), Auth::id())), 
+            201);
     }
 
-    public function show(string $addressId){ // OK
+    public function show(string $addressId)
+    { 
+        $address = $this->addressService->findAddressById(Auth::user(), $addressId);
 
-        $address = $this->addressService->findAddressById($addressId);
         if(!$address)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Endereco nao encontrado.'
-            ], 404);
+            return ApiResponse::fail('Endereco não encontrado.', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $address
-        ], 200);
+        return ApiResponse::success(
+            'Endereco encontrado',
+            new AddressResource($address),
+            200);
     }
 
-    public function update(UpdateAddressRequest $request, string $addressId) // OK
+    public function update(UpdateAddressRequest $request, string $addressId) // SUPER OK
     {
-        $address = $this->addressService->updateAddress($request->validated(), $addressId);
+        $address = $this->addressService->updateAddress(
+            $request->validated(), 
+            $addressId, 
+            Auth::user());
 
         if(!$address)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Endereco nao encontrado.'
-            ], 404);
+            return ApiResponse::fail('Endereco não encontrado.', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Endereco atualizado com sucesso!',
-            'data' => $address
-        ], 200);
+        return ApiResponse::success(
+            'Endereco atualizado com sucesso.',
+            new AddressResource($address),
+            200);
     }
 
-    public function destroy(string $addressId) // OK
+    public function destroy(string $addressId) // SUPER OK
     {
-        $address = $this->addressService->deleteAddress($addressId);
-        //arrumar quando nao existir 
-        if(!$address)
+        $address = $this->addressService->deleteAddress($addressId, Auth::user());
+
+        if($address === AddressDeleteStatus::HAS_ORDERS)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Endereco possue compras com esse endereco.'
-            ], 409);
+            return ApiResponse::fail('O endereco possue pedidos associados.', 409);
         }
-        return response()->json([
-            'success' => true,
-            'message' => 'Endereco excluido com sucesso'
-        ], 200);
+        
+        if($address === AddressDeleteStatus::NOT_FOUND)
+        {
+            return ApiResponse::fail('Endereco não encontrado.', 404);
+        }
+        
+        return response()->noContent();
     }
 }
