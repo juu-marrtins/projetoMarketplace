@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
@@ -16,38 +17,35 @@ class UserController extends Controller
     
     public function me()
     {
-        return response()->json([
-            'success' => true,
-            'data' => new UserResource(Auth::user())
-        ], 200);
+        return ApiResponse::success(
+            'Dados do usuário autênticado.',
+            new UserResource(Auth::user()),
+            200
+        );
     }
 
     public function store(StoreUserRequest $request)
     {           
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuário criado com sucesso!',
-            'data' => new UserResource($this->userService->createUser($request->validated()))
-        ], 201);
+        return ApiResponse::success(
+            'Usuário criado com sucesso.', 
+            new UserResource($this->userService->createUser($request->validated())),
+            201
+        );
     }
 
     public function update(UpdateUserRequest $request)
     {
-        return response()->json([ 
-            'success' => true,
-            'message' => 'Usuario atualizado com sucesso!',
-            'data' => new UserResource($this->userService->updateUser(
-                Auth::user(), 
-                $request->validated()))
-        ], 200);
+        return ApiResponse::success(
+            'Usuário atualizado com sucesso!',
+            new UserResource($this->userService->updateUser(Auth::user(), $request->validated())),
+            200
+        );
     }
 
     public function destroy()
     {
         $this->userService->deleteUser(Auth::user());
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuario excluido com sucesso!'
-        ], 200);
+
+        return response()->noContent();
     }
 }
