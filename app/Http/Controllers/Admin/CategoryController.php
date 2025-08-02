@@ -60,7 +60,7 @@ class CategoryController extends Controller
 
         if(!$category)
         {
-            return ApiResponse::fail('Categoria não encontrada', 404);
+            return ApiResponse::fail('Categoria não encontrada', 404)  ;
         }
 
         return ApiResponse::success(
