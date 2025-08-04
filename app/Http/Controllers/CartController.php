@@ -2,7 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CartCreateStatus;
+use App\Enums\CartDeleteStatus;
+use App\Helpers\ApiResponse;
+use App\Http\Resources\CartResource;
 use App\Http\Services\CartService;
+use Illuminate\Support\Facades\Auth;
+
 class CartController extends Controller
 {
     public function __construct(protected CartService $cartService)
@@ -10,46 +16,48 @@ class CartController extends Controller
 
     public function cartUser()
     {
-        $cart = $this->cartService->getCartAuth();
+        $cart = $this->cartService->getCartAuth(Auth::user());
 
         if(!$cart)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Carrinho nao encontrado.'
-            ], 404);
+            return ApiResponse::fail(
+                'Carrinho não encontrado.',
+                404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $cart
-        ], 200);
+        return ApiResponse::success(
+            'Carrinho do usuário: ' . Auth::user()->name,
+            new CartResource($cart),
+            200);
     }
 
     public function store()
     {
-        return response()->json([
-            'success' => true,
-            'message' => 'Carrinho criado com sucesso!',
-            'data' => $this->cartService->createCart()
-        ], 201);
+        $cart = $this->cartService->createCart(Auth::user());
+
+        if($cart === CartCreateStatus::ALREADY_HAS_CART)
+        {
+            return ApiResponse::fail(
+                'O usuário já possui um carrinho.',
+                409);
+        }
+        return ApiResponse::success(
+            'Carrinho criado com sucesso.',
+            new CartResource($cart),
+            201);
     }
 
     public function destroy()
     {
-        $cart = $this->cartService->deleteCart();
+        $cart = $this->cartService->deleteCart(Auth::user());
 
-        if(!$cart)
+        if($cart === CartDeleteStatus::NOT_FOUND)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Carrinho nao encontrado.'
-            ], 404);
+            return ApiResponse::fail(
+                'Carrinho não encontrado.',
+                404);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Carrinho excluido com sucesso!'
-        ], 200);
+        return response()->noContent();
     }
 }
