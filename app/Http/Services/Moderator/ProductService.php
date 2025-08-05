@@ -21,7 +21,7 @@ class ProductService
     {
         try {
             return $this->productRepository->findById($id); 
-        } catch (ModelNotFoundException) {
+        } catch (ModelNotFoundException $e) {
             return null;
         }
     }   

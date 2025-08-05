@@ -2,8 +2,8 @@
 
 namespace App\Http\Services;
 
-use App\Enums\CartCreateStatus;
-use App\Enums\CartDeleteStatus;
+use App\Enums\Cart\CartCreateStatus;
+use App\Enums\Cart\CartDeleteStatus;
 use App\Http\Repository\CartRepository;
 use App\Models\User;
 

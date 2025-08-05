@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\CartCreateStatus;
-use App\Enums\CartDeleteStatus;
+use App\Enums\Cart\CartCreateStatus;
+use App\Enums\Cart\CartDeleteStatus;
 use App\Helpers\ApiResponse;
 use App\Http\Resources\CartResource;
 use App\Http\Services\CartService;

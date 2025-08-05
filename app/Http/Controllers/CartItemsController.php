@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CartItems\CartItemsCartStatus;
+use App\Enums\CartItems\CartItemsInsertStatus;
+use App\Helpers\ApiResponse;
 use App\Http\Requests\DestroyCartItemRequest;
 use App\Http\Requests\InsertCartItemsRequest;
+use App\Http\Resources\CartItemsResource;
 use App\Http\Services\CartItemsService;
+use Illuminate\Support\Facades\Auth;
 
 class CartItemsController extends Controller
 {
@@ -13,71 +18,71 @@ class CartItemsController extends Controller
 
     public function itemsCart()
     {
-        $cartItems = $this->cartItemsService->getItems();
+        $cartItems = $this->cartItemsService->getItems(Auth::user());
 
-        if($cartItems === 'no_cart')
+        if($cartItems === CartItemsCartStatus::CART_NOT_FOUND)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Carrinho nao encontrado.'
-            ], 404);
+            return ApiResponse::fail(
+                'Carrinho não encontrado',
+                404
+            );
         }
         
-        if ($cartItems === null || $cartItems->isEmpty())
+        if ($cartItems === CartItemsCartStatus::NO_ITEMS)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Carrinho vazio.',
-                'data' => []
-            ], 200);
+            return ApiResponse::success(
+                'Carrinho vazio.',
+                [],
+                200
+            );
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $cartItems
-        ], 200);
+        return ApiResponse::success(
+            'Listagem de items',
+            CartItemsResource::collection($cartItems),
+            200
+        );
     }
 
     public function insert(InsertCartItemsRequest $request)
     {
-        $cartItem = $this->cartItemsService->insertItem($request->validated());
-        if ($cartItem === 'no_cart')
+        $cartItem = $this->cartItemsService->insertItem($request->validated(), Auth::user());
+
+        if ($cartItem === CartItemsInsertStatus::CART_NOT_FOUND)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Carrinho não encontrado.'
-            ], 404);
+            return ApiResponse::fail(
+                'Carrinho não encontrado',
+                404
+            );
         }
 
-        if ($cartItem === 'no_stock')
+        if ($cartItem === CartItemsInsertStatus::STOCK_NOT_ENOUGH)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Estoque insuficiente.'
-            ], 400);
+            return ApiResponse::fail(
+                'Estoquen insuficiente.',
+                409
+            );
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Produto inserido no carrinho com sucesso!'
-        ], 200);
+        return ApiResponse::success(
+            'Produto inserido com sucess.',
+            new CartItemsResource($cartItem),
+            200
+        );
     }
 
     public function destroy(DestroyCartItemRequest $request)
     {
-        $cartItem = $this->cartItemsService->deleteItem($request->validated());
+        $cartItem = $this->cartItemsService->deleteItem($request->validated(), Auth::user());
 
         if(!$cartItem)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Produto nao encontrado.'
-            ], 404);
+            return ApiResponse::fail(
+                'Produto não encontrado no carrinho.',
+                404
+            );
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => "Produto excluido do carrinho com sucesso!"
-        ], 200);
+        return response()->noContent();
     }
 }
