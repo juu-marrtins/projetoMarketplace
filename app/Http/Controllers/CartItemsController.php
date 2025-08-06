@@ -8,6 +8,7 @@ use App\Helpers\ApiResponse;
 use App\Http\Requests\DestroyCartItemRequest;
 use App\Http\Requests\InsertCartItemsRequest;
 use App\Http\Resources\CartItemsResource;
+use App\Http\Resources\Moderator\ProductResource;
 use App\Http\Services\CartItemsService;
 use Illuminate\Support\Facades\Auth;
 
@@ -63,12 +64,8 @@ class CartItemsController extends Controller
                 409
             );
         }
-
-        return ApiResponse::success(
-            'Produto inserido com sucess.',
-            new CartItemsResource($cartItem),
-            200
-        );
+        
+        return response()->noContent();
     }
 
     public function destroy(DestroyCartItemRequest $request)

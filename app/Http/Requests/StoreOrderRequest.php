@@ -23,7 +23,7 @@ class StoreOrderRequest extends FormRequest
     {
         return [
             'addressId' => 'required|exists:addresses,id',
-            'couponId' => 'sometimes|exists:coupons,id'
+            'couponId' => 'nullable|exists:coupons,id'
         ];
     }
 }

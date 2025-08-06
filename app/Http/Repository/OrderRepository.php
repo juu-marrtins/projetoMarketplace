@@ -4,13 +4,13 @@ namespace App\Http\Repository;
 
 use App\Models\Order;
 use App\Models\OrderItem;
-
+use App\Models\Product;
 
 class OrderRepository
 {
     public function all()
     {
-        return Order::all();
+        return Order::with('orderItems.product')->get();
     }
 
     public function create(array $dataValidated)
@@ -48,8 +48,20 @@ class OrderRepository
                     ->first();
     }
 
-        public function getAllByUserId(string $userId)
+    public function getAllByUserId(string $userId)
     {
         return Order::where('userId', $userId)->get();
+    }
+
+    public function updateTotalAmount(Order $order, float $totalAmount)
+    {
+        $order->totalAmount = $totalAmount;
+        $order->save();
+    }
+
+    public function updateStockProduct(Product $product, int $newStock)
+    {
+        $product->stock = $newStock;
+        $product->save();
     }
 }
