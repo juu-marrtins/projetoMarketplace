@@ -42,26 +42,28 @@ class OrderController extends Controller
 
         if($order === OrderCreateOrderStatus::DISCOUNT_INVALID)
         {
-            return ApiResponse::fail(
-                'Desconto inserido inválido.',
-                409
-            );
+            return ApiResponse::fail('Desconto inserido inválido.', 409);
         }
         if($order === OrderCreateOrderStatus::STOCK_NOT_ENOUGH)
         {
-            return ApiResponse::fail(
-                'Produto não possue estoque suficiente.',
-                409
-            );
+            return ApiResponse::fail('Produto não possue estoque suficiente.',409);
         }
         if($order === OrderCreateOrderStatus::CART_EMPTY)
         {
-            return ApiResponse::fail(
-                'Não é possivel criar um pedido com o carrinho vazio.',
-                409
+            return ApiResponse::fail('Não é possivel criar um pedido com o carrinho vazio.', 409);
+        }
+        if($order === OrderCreateOrderStatus::ADDRESS_NOT_FOUND)
+        {
+            return ApiResponse::fail('Endereco inválido.', 409);
+        }
+        if($order[0]  === OrderCreateOrderStatus::ORDER_SUCCESS_WITHOUT_DISCOUNT)
+        {
+            return ApiResponse::success(
+                'Pedido criado, mas sem o uso de desconto.',
+                new OrderResource($order[1]),
+                200
             );
         }
-
         return ApiResponse::success(
             'Pedido criado com sucesso.',
             new OrderResource($order),

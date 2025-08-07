@@ -90,7 +90,7 @@ class ProductController extends Controller
     {
         $product = $this->productService->deleteProduct($productId);
 
-        if($product === ProductDeleteStatus::DELETED)
+        if($product === ProductDeleteStatus::NOT_FOUND)
         {
             return ApiResponse::fail('Produto não encontrado.', 404);
         }

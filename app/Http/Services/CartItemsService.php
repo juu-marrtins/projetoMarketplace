@@ -75,16 +75,16 @@ class CartItemsService
             $user);
     }
 
-    public function deleteItem(array $dataValidated, User $user)
+    public function deleteItem(string $productId, User $user)
     {
-        $productId = $dataValidated['productId'];
         $item = $this->cartItemsRepository->findCartItemByProductId($productId, $user);
-
         if(!$item)
         {
             return null;
         }
 
-        return $item->delete();
+        $item->delete();
+
+        return $item;
     }
 }

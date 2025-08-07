@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Enums\OrderCreateOrderStatus;
 use App\Http\Repository\OrderRepository;
+use App\Http\Services\Address\AddressService;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Order;
@@ -13,7 +14,9 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderService
 {
-    public function __construct(protected OrderRepository $orderRepository)
+    public function __construct(
+        protected OrderRepository $orderRepository,
+        protected AddressService $addressService)
     {}
 
     public function getAllOrders()
@@ -37,8 +40,13 @@ class OrderService
     public function createOrder(array $dataValidated, User $user)
     {   
         $dataValidated['userId'] = $user->id;
+        if(!$this->confirmAddress($dataValidated['addressId'], $user))
+        {
+            return OrderCreateOrderStatus::ADDRESS_NOT_FOUND;
+        }
         $dataValidated['status'] = 'PENDING';
         $dataValidated['orderDate'] = now();    
+        $dataValidated['totalAmount'] = 0;
         
         if($user->cart->items()->count() <= 0){
             return OrderCreateOrderStatus::CART_EMPTY;
@@ -48,11 +56,20 @@ class OrderService
 
         $orderItemCreate = $this->createOrderItem($order, $user);
 
-        if($orderItemCreate != OrderCreateOrderStatus::SUCCESS){
+        if($orderItemCreate != OrderCreateOrderStatus::SUCCESS || $orderItemCreate != OrderCreateOrderStatus::ORDER_SUCCESS_WITHOUT_DISCOUNT){
             return $orderItemCreate;
         }
 
         return $order;
+    }
+
+    public function confirmAddress(string $addressId, User $user)
+    {
+        if(!$this->addressService->findAddressById($user, $addressId))
+        {
+            return OrderCreateOrderStatus::ADDRESS_NOT_FOUND;
+        }
+        return true;
     }
 
     public function createOrderItem(Order $order, User $user)
@@ -78,6 +95,9 @@ class OrderService
 
             if ($discount) {
                 $subtotal = $this->getDiscount($subtotal, $discount);
+                $discountUse = true;
+            } else {
+                $discountUse = false;
             }
 
             $this->orderRepository->createOrderItem(
@@ -101,6 +121,10 @@ class OrderService
 
         $user->cart->items()->delete();
 
+        if(!$discountUse)
+        {
+            return [OrderCreateOrderStatus::ORDER_SUCCESS_WITHOUT_DISCOUNT, $order];
+        }
         return OrderCreateOrderStatus::SUCCESS;
     }
 

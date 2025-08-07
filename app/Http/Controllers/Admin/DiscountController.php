@@ -51,8 +51,8 @@ class DiscountController extends Controller
             'Desconto encontrado',
             new DiscountResource($discount),
             200);
-
     }
+
     public function update(UpdateDiscountRequest $request, string $discountId)
     {
         $discount = $this->discountService->UpdateDiscount($request->validated(), $discountId);

@@ -60,7 +60,7 @@ class CartItemsController extends Controller
         if ($cartItem === CartItemsInsertStatus::STOCK_NOT_ENOUGH)
         {
             return ApiResponse::fail(
-                'Estoquen insuficiente.',
+                'Estoque insuficiente.',
                 409
             );
         }
@@ -70,7 +70,8 @@ class CartItemsController extends Controller
 
     public function destroy(DestroyCartItemRequest $request)
     {
-        $cartItem = $this->cartItemsService->deleteItem($request->validated(), Auth::user());
+        $dataValidated = $request->validated();
+        $cartItem = $this->cartItemsService->deleteItem($dataValidated['productId'], Auth::user());
 
         if(!$cartItem)
         {

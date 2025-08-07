@@ -7,7 +7,8 @@ use App\Http\Repository\Admin\DiscountRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DiscountService{
-    public function __construct(protected DiscountRepository $discountRepository)
+    public function __construct(
+        protected DiscountRepository $discountRepository)
     {}
 
     public function getAllDiscounts()
@@ -37,8 +38,9 @@ class DiscountService{
         {
             return null;
         }
-
-        return $discount->update($dataValidated);
+        $discount->update($dataValidated);
+        
+        return $discount;
     }
 
     public function deleteDiscount(string $id)
