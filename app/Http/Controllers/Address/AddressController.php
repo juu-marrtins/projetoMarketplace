@@ -16,12 +16,11 @@ class AddressController extends Controller
     public function __construct(protected AddressService $addressService)
     {}
 
-    public function addressUser() // SUPER OK
+    public function addressUser() // ok 2.0
     {
         $addresses = $this->addressService->getAllAddressesUser(Auth::user());
 
-        if($addresses->isEmpty())
-        {
+        if ($addresses->isEmpty()) {
             return ApiResponse::fail('Nenhum endereco encontrado', 404);
         }
 
@@ -31,7 +30,7 @@ class AddressController extends Controller
             200);
     }
 
-    public function store(StoreAddressRequest $request) // SUPER OK
+    public function store(StoreAddressRequest $request) // ok 2.0
     {   
         return ApiResponse::success(
             'Endereco criado com sucesso.',
@@ -39,7 +38,7 @@ class AddressController extends Controller
             201);
     }
 
-    public function show(string $addressId)
+    public function show(string $addressId) // ok 2.0
     { 
         $address = $this->addressService->findAddressById(Auth::user(), $addressId);
 
@@ -54,8 +53,8 @@ class AddressController extends Controller
             200);
     }
 
-    public function update(UpdateAddressRequest $request, string $addressId) // SUPER OK
-    {
+    public function update(UpdateAddressRequest $request, string $addressId) // ok 2.0
+    { 
         $address = $this->addressService->updateAddress(
             $request->validated(), 
             $addressId, 
@@ -72,20 +71,16 @@ class AddressController extends Controller
             200);
     }
 
-    public function destroy(string $addressId) // SUPER OK
+    public function destroy(string $addressId)  // ok 2.0
     {
-        $address = $this->addressService->deleteAddress($addressId, Auth::user());
+        $status = $this->addressService->deleteAddress($addressId, Auth::user());
 
-        if($address === AddressDeleteStatus::HAS_ORDERS)
+        return match($status)
         {
-            return ApiResponse::fail('O endereco possue pedidos associados.', 409);
-        }
-        
-        if($address === AddressDeleteStatus::NOT_FOUND)
-        {
-            return ApiResponse::fail('Endereco não encontrado.', 404);
-        }
-        
-        return response()->noContent();
+            AddressDeleteStatus::HAS_ORDERS => ApiResponse::fail('O endereco possui pedidos associados.', 409),
+            AddressDeleteStatus::NOT_FOUND  => ApiResponse::fail('Endereco não encontrado.', 404),
+            AddressDeleteStatus::DELETED    => response()->noContent(),
+            default                         => ApiResponse::fail('Erro ao deletar o endereco.', 500)
+        };
     }
 }

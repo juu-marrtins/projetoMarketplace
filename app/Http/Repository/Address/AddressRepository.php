@@ -8,12 +8,12 @@ use App\Models\User;
 class AddressRepository
 {
 
-    public function findAddress(User $user, string $id)
+    public function findAddress(User $user, string $id) : Address
     {
-        return $user->addresses()->find($id);
+        return $user->addresses()->findOrFail($id);
     }
 
-    public function create(array $dataValidated)
+    public function create(array $dataValidated) : Address
     {
         return Address::create($dataValidated);
     }
