@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\CartItems\CartItemsCartStatus;
 use App\Enums\CartItems\CartItemsInsertStatus;
 use App\Helpers\ApiResponse;
-use App\Http\Requests\DestroyCartItemRequest;
 use App\Http\Requests\InsertCartItemsRequest;
 use App\Http\Resources\CartItemsResource;
 use App\Http\Services\CartItemsService;
@@ -67,11 +66,10 @@ class CartItemsController extends Controller
         return response()->noContent();
     }
 
-    public function destroy(DestroyCartItemRequest $request)
+    public function destroy(string $cartItemId)
     {
         $cart = Auth::user()->cart;
-        $dataValidated = $request->validated();
-        $cartItem = $this->cartItemsService->deleteItem($dataValidated['productId'], $cart->id);
+        $cartItem = $this->cartItemsService->deleteItem($cartItemId, $cart->id);
 
         if(!$cartItem)
         {
