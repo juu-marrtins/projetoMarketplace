@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Cart\CartCreateStatus;
 use App\Enums\Cart\CartDeleteStatus;
 use App\Helpers\ApiResponse;
 use App\Http\Resources\CartResource;
@@ -14,7 +13,7 @@ class CartController extends Controller
     public function __construct(protected CartService $cartService)
     {}
 
-    public function cartUser()
+    public function cartUser() // ok 2.0
     {
         $cart = $this->cartService->getCartAuth(Auth::user());
 
@@ -31,33 +30,15 @@ class CartController extends Controller
             200);
     }
 
-    public function store()
+    public function destroy() // ok 2.0
     {
-        $cart = $this->cartService->createCart(Auth::user());
-
-        if($cart === CartCreateStatus::ALREADY_HAS_CART)
+        $status = $this->cartService->deleteCart(Auth::user());
+        
+        match($status)
         {
-            return ApiResponse::fail(
-                'O usuário já possui um carrinho.',
-                409);
-        }
-        return ApiResponse::success(
-            'Carrinho criado com sucesso.',
-            new CartResource($cart),
-            201);
-    }
-
-    public function destroy()
-    {
-        $cart = $this->cartService->deleteCart(Auth::user());
-
-        if($cart === CartDeleteStatus::NOT_FOUND)
-        {
-            return ApiResponse::fail(
-                'Carrinho não encontrado.',
-                404);
-        }
-
-        return response()->noContent();
+            CartDeleteStatus::NOT_FOUND => ApiResponse::fail('Carrinho não encontrado.', 404),
+            CartDeleteStatus::DELETED   => response()->noContent(),
+            default                     => ApiResponse::fail('Erro ao excluir o carrinho.', 500)
+        };
     }
 }

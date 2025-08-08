@@ -16,7 +16,7 @@ class ProductController extends Controller
     public function __construct(protected ProductService $productService)
     {}
 
-    public function index()
+    public function index() // ok 2.0
     {
         $products = $this->productService->getAllProducts();
 
@@ -31,7 +31,7 @@ class ProductController extends Controller
             200);
     }
 
-    public function store(StoreProductRequest $request)
+    public function store(StoreProductRequest $request) // ok .20
     {
         $dataValidated = $request->validated();
         $imagePath = $this->productService->uploadImage($request); 
@@ -47,7 +47,7 @@ class ProductController extends Controller
         );
     }
 
-    public function show(string $productId)
+    public function show(string $productId) // ok 2.0
     {
         $product = $this->productService->findProductById($productId);
 
@@ -63,7 +63,7 @@ class ProductController extends Controller
         );
     }
 
-    public function update(UpdateProductRequest $request, string $productId) 
+    public function update(UpdateProductRequest $request, string $productId) // ok 2.0
     {
         $dataValidated = $request->validated();
         $imagePath = $this->productService->uploadImage($request); 
@@ -86,20 +86,16 @@ class ProductController extends Controller
         );
     }
 
-    public function destroy(string $productId)
+    public function destroy(string $productId) // ok 2.0
     {
-        $product = $this->productService->deleteProduct($productId);
+        $status = $this->productService->deleteProduct($productId);
 
-        if($product === ProductDeleteStatus::NOT_FOUND)
+        match($status)
         {
-            return ApiResponse::fail('Produto não encontrado.', 404);
-        }
-        
-        if ($product === ProductDeleteStatus::HAS_ORDERS_ITEMS)
-        {
-            return ApiResponse::fail('O produto está em um pedido.', 409);
-        }
-
-        return response()->noContent();
+            ProductDeleteStatus::NOT_FOUND        => ApiResponse::fail('Produto não encontrado.', 404),
+            ProductDeleteStatus::HAS_ORDERS_ITEMS => ApiResponse::fail('O produto está em um pedido.', 409),
+            ProductDeleteStatus::DELETED          => response()->noContent(),
+            default                               => ApiResponse::fail('Erro ao deletar produto.', 500)
+        };
     }
 }

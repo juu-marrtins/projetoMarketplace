@@ -4,6 +4,8 @@ namespace App\Http\Services\Moderator;
 
 use App\Enums\Moderator\ProductDeleteStatus;
 use App\Http\Repository\Moderator\ProductRepository;
+use App\Models\Product;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
@@ -12,12 +14,12 @@ class ProductService
     public function __construct(protected ProductRepository $productRepository)
     {}
 
-    public function getAllProducts()
+    public function getAllProducts() : Collection
     {
         return $this->productRepository->all();
     }
 
-    public function findProductById(string $id)
+    public function findProductById(string $id) : ?Product
     {
         try {
             return $this->productRepository->findById($id); 
@@ -26,12 +28,12 @@ class ProductService
         }
     }   
 
-    public function createProduct(array $dataValidated)
+    public function createProduct(array $dataValidated) : Product
     {
         return $this->productRepository->create($dataValidated);
     }
 
-    public function uploadImage(Request $request)
+    public function uploadImage(Request $request) : ?string
     {
         if($request->hasFile('image'))
         {
@@ -41,7 +43,7 @@ class ProductService
         return null;
     }
 
-    public function updateProduct(array $dataValidated, string $id)
+    public function updateProduct(array $dataValidated, string $id) : ?Product
     {
         $product = $this->findProductById($id);
             
@@ -55,7 +57,7 @@ class ProductService
         return $product;
     }
 
-    public function deleteProduct(string $id)
+    public function deleteProduct(string $id) : ProductDeleteStatus
     {
         $product = $this->findProductById($id);
 

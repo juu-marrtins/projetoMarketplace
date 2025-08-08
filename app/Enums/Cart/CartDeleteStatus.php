@@ -2,7 +2,8 @@
 
 namespace App\Enums\Cart;
 
-class CartDeleteStatus
+enum CartDeleteStatus : string
 {
-    public const NOT_FOUND = 'not_found';
+    case NOT_FOUND = 'not_found';
+    case DELETED = 'deleted';
 }
