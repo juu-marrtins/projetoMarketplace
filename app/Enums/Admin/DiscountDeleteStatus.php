@@ -2,7 +2,8 @@
 
 namespace App\Enums\Admin;
 
-class DiscountDeleteStatus{
-    public const NOT_FOUND = 'no_discount';
-    public const DELETED = 'deleted';
+enum DiscountDeleteStatus : string
+{
+    case NOT_FOUND = 'no_discount';
+    case DELETED = 'deleted';
 }

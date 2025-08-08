@@ -16,7 +16,7 @@ class DiscountController extends Controller
     public function __construct(protected DiscountService $discountService)
     {}
 
-    public function index()
+    public function index() // ok 2.0
     {
         $discounts = $this->discountService->getAllDiscounts();
 
@@ -31,7 +31,7 @@ class DiscountController extends Controller
             200);
     }
 
-    public function store(StoreDiscountRequest $request)
+    public function store(StoreDiscountRequest $request) // ok 2.0
     {
         return ApiResponse::success(
             'Desconto criado com sucesso.',
@@ -39,7 +39,7 @@ class DiscountController extends Controller
             201);
     }
 
-    public function show(string $discountId)
+    public function show(string $discountId) // ok 2.0
     {
         $discount = $this->discountService->findDiscountById($discountId);
 
@@ -53,7 +53,7 @@ class DiscountController extends Controller
             200);
     }
 
-    public function update(UpdateDiscountRequest $request, string $discountId)
+    public function update(UpdateDiscountRequest $request, string $discountId) // ok 2.0
     {
         $discount = $this->discountService->UpdateDiscount($request->validated(), $discountId);
 
@@ -68,16 +68,16 @@ class DiscountController extends Controller
             200);
     }
 
-    public function destroy(string $discountId)
+    public function destroy(string $discountId) // ok 2.0
     {
-        $discount = $this->discountService->deleteDiscount($discountId);
+        $status = $this->discountService->deleteDiscount($discountId);
 
-        if($discount === DiscountDeleteStatus::NOT_FOUND)
+        match($status)
         {
-            return ApiResponse::fail('Desconto não encontrado.', 404);
-        }
-        
-        return response()->noContent();
+            DiscountDeleteStatus::NOT_FOUND => ApiResponse::fail('Desconto não encontrado.', 404),
+            DiscountDeleteStatus::DELETED   => response()->noContent(),
+            default                         => ApiResponse::fail('Erro ao deletar desconto.', 500)
+        };
     }
 }
 
