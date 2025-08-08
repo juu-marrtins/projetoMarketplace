@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Moderator;
 
+use App\Enums\Moderator\ProductDeleteStatus;
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Moderator\StoreProductRequest;
 use App\Http\Requests\Moderator\UpdateProductRequest;
+use App\Http\Resources\Moderator\ProductResource;
 use App\Http\Services\Moderator\ProductService;
 
 class ProductController extends Controller
@@ -19,33 +22,29 @@ class ProductController extends Controller
 
         if($products->isEmpty())
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Nenhum produto encontrado.'
-            ], 404);
+            return ApiResponse::fail('Nenhum produto encontrado.', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $products
-        ], 200);
+        return ApiResponse::success(
+            'Listagem de produtos',
+            ProductResource::collection($products),
+            200);
     }
 
     public function store(StoreProductRequest $request)
     {
         $dataValidated = $request->validated();
+        $imagePath = $this->productService->uploadImage($request); 
 
-        if($request->hasFile('image'))
-        {
-            $imagePath = $request->file('image')->store('products', 'public');
-            $dataValidated['image'] =  $imagePath;
+        if ($imagePath) {
+            $dataValidated['image'] = $imagePath;
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Produto cadastrado com sucesso!',
-            'data' =>  $this->productService->createProduct($dataValidated)
-        ], 201);
+        return ApiResponse::success(
+            'Produto cadastrado com sucesso.',
+            new ProductResource($this->productService->createProduct($dataValidated)),
+            201
+        );
     }
 
     public function show(string $productId)
@@ -54,69 +53,53 @@ class ProductController extends Controller
 
         if(!$product)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Produto nao encontrado.'
-            ], 404);
+            return ApiResponse::fail('Produto não encontrado', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'data' => $product
-        ], 200);
+        return ApiResponse::success(
+            'Produto encontrado.',
+            new ProductResource($product),
+            200
+        );
     }
 
     public function update(UpdateProductRequest $request, string $productId) 
     {
         $dataValidated = $request->validated();
-        
-        if($request->hasFile('image'))
-        {
-            $imagePath = $request->file('image')->store('products', 'public');
-            $dataValidated['image'] =  $imagePath;
+        $imagePath = $this->productService->uploadImage($request); 
+
+        if ($imagePath) {
+            $dataValidated['image'] = $imagePath;
         }
 
         $product = $this->productService->updateProduct($dataValidated, $productId);
 
         if(!$product)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Produto nao encontrado'
-            ], 404);
+            return ApiResponse::fail('Produto não encontrado.', 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Produto atualizado com sucesso!',
-            'data' => $product
-        ], 200);
+        return ApiResponse::success(
+            'Produto atualizado com sucesso.',
+            new ProductResource($product),
+            200
+        );
     }
 
     public function destroy(string $productId)
     {
         $product = $this->productService->deleteProduct($productId);
 
-        if(!$product)
+        if($product === ProductDeleteStatus::NOT_FOUND)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Produto nao encontrado.'
-            ], 404);
+            return ApiResponse::fail('Produto não encontrado.', 404);
         }
         
-        if ($product === 'used_in_orders')
+        if ($product === ProductDeleteStatus::HAS_ORDERS_ITEMS)
         {
-            return response()->json([
-                'success' => false,
-                'message' => 'Produto ja foi vendido e nao pode ser excluido.'
-            ], 409);
+            return ApiResponse::fail('O produto está em um pedido.', 409);
         }
 
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Produto excluido com sucesso!'
-        ], 200);
+        return response()->noContent();
     }
 }

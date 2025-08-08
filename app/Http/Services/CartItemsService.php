@@ -2,9 +2,11 @@
 
 namespace App\Http\Services;
 
+use App\Enums\CartItems\CartItemsCartStatus;
+use App\Enums\CartItems\CartItemsInsertStatus;
 use App\Http\Repository\CartItemsRepository;
 use App\Http\Services\Moderator\ProductService;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class CartItemsService
 {
@@ -13,84 +15,76 @@ class CartItemsService
         protected ProductService $productService)
     {}
 
-    public function getItems()
+    public function getItems(User $user)
     {
         
-        $items = $this->cartItemsRepository->allItems();
+        $items = $this->cartItemsRepository->allItems($user);
 
-        if ($items === 'no_cart') {
-            return 'no_cart';
+        if ($items === CartItemsCartStatus::CART_NOT_FOUND) {
+            return CartItemsCartStatus::CART_NOT_FOUND;
         }
 
-        if (is_null($items) || $items->isEmpty()) {
-            return null;
+        if ($items->isEmpty()) {
+            return CartItemsCartStatus::NO_ITEMS;
         }
         
         return $items;
     }
 
-    public function insertItem(array $dataValidated)
+    public function insertItem(array $dataValidated, User $user)
     {
-        $cart = Auth::user()->cart;
-        
+        $cart = $user->cart;
         if (!$cart) {
-            return 'no_cart';
+            return CartItemsInsertStatus::CART_NOT_FOUND;
         }
 
         $dataValidated['cartId'] = $cart->id;
         $productId = $dataValidated['productId'];
+
         $product = $this->productService->findProductById($productId);
 
-        $stock = $this->getStockItem($productId);
-        if ($stock === null) {
-            return 'no_stock';
+        if(!$product)
+        {
+            return CartItemsInsertStatus::PRODUCT_NOT_FOUND;
         }
 
-        $hasItem = $this->cartItemsRepository->findCartItemByProductId($productId);
+        $stock = $product->stock;
+
+        $hasItem = $this->cartItemsRepository->findCartItemByProductId($productId, $user);
         $newQty = $dataValidated['quantity'];
         $currentQty = $hasItem ? $hasItem->quantity : 0;
 
-        if (($currentQty + $newQty) > $stock) {
-            return 'no_stock';
+        if ($stock === null || ($currentQty + $newQty) > $stock) {
+            return CartItemsInsertStatus::STOCK_NOT_ENOUGH;
         }
 
         if ($hasItem) {
-            $this->incrementItem($dataValidated);
+            $this->incrementItem($dataValidated, $user);
         } else {
             $this->cartItemsRepository->insert($dataValidated);
         }
-
-        return true;
+        return $cart;
     }
 
 
-    public function getStockItem(string $id)
-    {
-        $product = $this->productService->findProductById($id);
-        if(!$product)
-        {
-            return null;
-        }
-        return $product->stock;
-    }
-
-    public function incrementItem(array $dataValidated)
+    public function incrementItem(array $dataValidated, User $user)
     {
         return $this->cartItemsRepository->incrementQuantity(
             $dataValidated['productId'],
-            $dataValidated['quantity']);
+            $dataValidated['quantity'],
+            $user);
     }
 
-    public function deleteItem(array $dataValidated)
+    public function deleteItem(string $productId, User $user)
     {
-        $productId = $dataValidated['productId'];
-        $item = $this->cartItemsRepository->findCartItemByProductId($productId);
-
+        $item = $this->cartItemsRepository->findCartItemByProductId($productId, $user);
         if(!$item)
         {
             return null;
         }
 
-        return $item->delete();
+        $item->delete();
+
+        return $item;
     }
 }

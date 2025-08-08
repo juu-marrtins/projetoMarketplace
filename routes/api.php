@@ -41,7 +41,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function (){
     Route::post('user/create-moderator', [AdminUserController::class, 'store']);
 });
 Route::middleware(['auth:sanctum'])->group(function () {
-    Route::delete('/orders/{orderId}', [OrderController::class, 'destroy']);
+    Route::delete('/orders/{orderId}', [OrderController::class, 'cancelOrder']);
     Route::get('/orders/{orderId}', [OrderController::class, 'orderById']);
     Route::post('/orders/', [OrderController::class, 'store']);
     Route::get('/orders/', [OrderController::class, 'orderByUser']);

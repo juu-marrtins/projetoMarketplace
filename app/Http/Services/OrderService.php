@@ -2,16 +2,21 @@
 
 namespace App\Http\Services;
 
+use App\Enums\OrderCreateOrderStatus;
 use App\Http\Repository\OrderRepository;
+use App\Http\Services\Address\AddressService;
 use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class OrderService
 {
-    public function __construct(protected OrderRepository $orderRepository)
+    public function __construct(
+        protected OrderRepository $orderRepository,
+        protected AddressService $addressService)
     {}
 
     public function getAllOrders()
@@ -25,26 +30,53 @@ class OrderService
         return $orders;
     }
 
-    public function getAllOrdersOfAuthenticatedUser()
+    public function getAllOrdersOfAuthenticatedUser(int $userId)
     {
-        $orders = $this->orderRepository->getAllByUserId(Auth::id());
+        $orders = $this->orderRepository->getAllByUserId($userId);
 
         return $orders->isEmpty() ? null : $orders;
     }
 
-
-    public function createOrder(array $dataValidated)
+    public function createOrder(array $dataValidated, User $user)
     {   
-        $dataValidated['userId'] = Auth::user()->id;
-        $dataValidated['orderDate'] = now();
-        $order =  $this->orderRepository->create($dataValidated);
-        $this->createOrderItem($order);
+        $dataValidated['userId'] = $user->id;
+
+        if(!$this->confirmAddress($dataValidated['addressId'], $user))
+        {
+            return OrderCreateOrderStatus::ADDRESS_NOT_FOUND;
+        }
+
+        $dataValidated['status'] = 'PENDING';
+        $dataValidated['orderDate'] = now();    
+        $dataValidated['totalAmount'] = 0;
+        
+        if($user->cart->items()->count() <= 0){
+            return OrderCreateOrderStatus::CART_EMPTY;
+        }
+
+        $order = $this->orderRepository->create($dataValidated);
+
+        $orderItemCreate = $this->createOrderItem($order, $user);
+
+        if($orderItemCreate != OrderCreateOrderStatus::SUCCESS || $orderItemCreate != OrderCreateOrderStatus::ORDER_SUCCESS_WITHOUT_DISCOUNT){
+            return $orderItemCreate;
+        }
+
         return $order;
     }
 
-    public function createOrderItem(Order $order)
+    public function confirmAddress(string $addressId, User $user)
     {
-        $cart = Auth::user()->cart()->with('items.product.discounts')->first();
+        if(!$this->addressService->findAddressById($user, $addressId))
+        {
+            return OrderCreateOrderStatus::ADDRESS_NOT_FOUND;
+        }
+        return true;
+    }
+
+    public function createOrderItem(Order $order, User $user)
+    {
+        $cart = $user->cart()->with('items.product.discounts')->first();
 
         $totalOrder = 0;
 
@@ -52,7 +84,12 @@ class OrderService
         {
             $product = $item->product;
 
-            $this->decrementProduct($product, $item);
+            $successDecrement = $this->decrementProduct($product, $item);
+
+            if($successDecrement != OrderCreateOrderStatus::SUCCESS)
+            {
+                return $successDecrement;
+            }
 
             $discount = $product->discounts->firstWhere('endDate', '>=', now());
 
@@ -60,6 +97,9 @@ class OrderService
 
             if ($discount) {
                 $subtotal = $this->getDiscount($subtotal, $discount);
+                $discountUse = true;
+            } else {
+                $discountUse = false;
             }
 
             $this->orderRepository->createOrderItem(
@@ -74,20 +114,35 @@ class OrderService
 
         $coupon = $order->coupon;
 
-        if ($coupon && $coupon->endDate >= now()) 
+        if ($coupon && $coupon->endDate >= now())   
         {
             $totalOrder = $this->getCoupon($totalOrder, $coupon);
         }
-        $order->totalAmount = $totalOrder;
-        $order->save();
 
-        return $totalOrder;
+        $this->orderRepository->updateTotalAmount($order, $totalOrder);
+
+        $user->cart->items()->delete();
+
+        if(!$discountUse)
+        {
+            return [OrderCreateOrderStatus::ORDER_SUCCESS_WITHOUT_DISCOUNT, $order];
+        }
+        return OrderCreateOrderStatus::SUCCESS;
     }
 
     public function decrementProduct(Product $product, CartItem $item)
     {
-        $product->stock -= $item->quantity;
-        $product->save();
+
+        if($product->stock < $item->quantity)
+        {
+            return OrderCreateOrderStatus::STOCK_NOT_ENOUGH;
+        }
+
+        $newStock = $product->stock -= $item->quantity;
+
+        $this->orderRepository->updateStockProduct($product, $newStock);
+
+        return OrderCreateOrderStatus::SUCCESS;
     }
 
     public function restoreStock(string $orderId)
@@ -100,8 +155,8 @@ class OrderService
         foreach ($order->orderItems as $item) {
             $product = $item->product;
             if ($product) {
-                $product->stock += $item->quantity;
-                $product->save();
+                $newStock = $product->stock += $item->quantity;
+                $this->orderRepository->updateStockProduct($product, $newStock);
             }
         }
         return true;
@@ -120,9 +175,9 @@ class OrderService
     }
 
 
-    public function getOrderById(string $orderId)
+    public function getOrderById(string $orderId, int $userId)
     {
-        $order = $this->orderRepository->findByUserAndId(Auth::id(), $orderId);
+        $order = $this->orderRepository->findByUserAndId($userId, $orderId);
 
         if(!$order){
             return null;
@@ -152,16 +207,22 @@ class OrderService
         return $updateOrder;
     }
 
-    public function deleteOrder(string $orderId)
+    public function userCancelOrder(string $orderId)
     {
-        $orderDelete = $this->orderRepository->findByUserAndId(Auth::id(), $orderId);
+        $order = $this->orderRepository->findByUserAndId(Auth::id(), $orderId);
 
-        if(!$orderDelete) {
-            return null;
+        if(!$order) {
+            return OrderCreateOrderStatus::ORDER_NOT_FOUND;
         }
-        
-        $orderDelete->delete();
 
-        return $orderDelete;
+        if($order->status === 'CANCELED')
+        {
+            return OrderCreateOrderStatus::ORDER_ALREADY_CANCELED;
+        }
+
+        $order->status = 'CANCELED';
+        $this->restoreStock($orderId);
+        
+        return true;
     }
 }

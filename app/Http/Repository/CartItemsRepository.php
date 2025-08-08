@@ -2,17 +2,18 @@
 
 namespace App\Http\Repository;
 
+use App\Enums\CartItems\CartItemsCartStatus;
 use App\Models\CartItem;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class CartItemsRepository
 {
-    public function allItems()
+    public function allItems(User $user)
     {
-        $cart = Auth::user()->cart()->with('cartItems')->first();
+        $cart = $user->cart()->with('cartItems')->first();
 
         if(!$cart){
-            return 'no_cart';
+            return CartItemsCartStatus::CART_NOT_FOUND;
         }
 
         $items = $cart->cartItems;
@@ -25,17 +26,17 @@ class CartItemsRepository
         return CartItem::create($dataValidated);
     }
 
-    public function findCartItemByProductId(string $productId)
+    public function findCartItemByProductId(string $productId, User $user)
     {
-        $cartId = Auth::user()->cart->id;
+        $cartId = $user->cart->id;
         return CartItem::where('cartId', $cartId)
                         ->where('productId', $productId)
                         ->first();
     }
 
-    public function incrementQuantity(string $productId, int $newQuantity)
+    public function incrementQuantity(string $productId, int $newQuantity, User $user)
     {
-        $product = $this->findCartItemByProductId($productId);
+        $product = $this->findCartItemByProductId($productId, $user);
 
         $product->quantity += $newQuantity;
         $product->save();

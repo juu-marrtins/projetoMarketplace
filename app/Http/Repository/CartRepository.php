@@ -3,19 +3,14 @@
 namespace App\Http\Repository;
 
 use App\Models\Cart;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class CartRepository
 {
-    public function getCart()
-    {
-        return Auth::user()->cart;
-    }
-
-    public function create()
+    public function create(User $user)
     {
         return Cart::create([
-            'userId' => Auth::user()->id
+            'userId' => $user->id
         ]);
     }
 }

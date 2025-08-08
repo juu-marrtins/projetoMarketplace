@@ -2,36 +2,39 @@
 
 namespace App\Http\Services;
 
+use App\Enums\Cart\CartCreateStatus;
+use App\Enums\Cart\CartDeleteStatus;
 use App\Http\Repository\CartRepository;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class CartService
 {
     public function __construct(protected CartRepository $cartRepository)
     {}
 
-    public function getCartAuth()
+    public function getCartAuth(User $user)
     {
-        $cart = $this->cartRepository->getCart();
+        $cart = $user->cart;
 
-        if(!$cart)
-        {
-            return null;
-        }
         return $cart;
     }
 
-    public function createCart()
+    public function createCart(User $user)
     {
-        return $this->cartRepository->create();
+        if($user->cart)
+        {
+            return CartCreateStatus::ALREADY_HAS_CART;
+        }
+
+        return $this->cartRepository->create($user);
     }
 
-    public function deleteCart()
+    public function deleteCart(User $user)
     {
-        $cart = Auth::user()->cart;
+        $cart = $user->cart;
 
         if(!$cart){
-            return null;
+            return CartDeleteStatus::NOT_FOUND;
         }
 
         $cart->delete();

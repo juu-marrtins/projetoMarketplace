@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAdminRequest;
+use App\Http\Resources\User\UserResource;
 use App\Http\Services\Admin\AdminUserService;   
 
 class AdminUserController extends Controller
@@ -12,14 +14,11 @@ class AdminUserController extends Controller
     public function __construct(protected AdminUserService $adminUserService)
     {}
 
-    public function store(StoreAdminRequest $request) // OK
+    public function store(StoreAdminRequest $request) // SUPER OK
     {
-        $moderator = $this->adminUserService->createModerator($request->validated());
-            
-        return response()->json([
-            'succes' => true,
-            'message' => 'Usuário da role MODERATOR criado com sucesso!',
-            'data' => $moderator
-        ], 201);
+        return ApiResponse::success(
+            'Moderator criado com sucesso.',
+            new UserResource($this->adminUserService->createModerator($request->validated())),
+            201);
     }
 }

@@ -2,38 +2,39 @@
 
 namespace App\Http\Services\Address;
 
+use App\Enums\Address\AddressDeleteStatus;
 use App\Http\Repository\Address\AddressRepository;
+use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Auth;
 
 class AddressService
 {
     public function __construct(protected AddressRepository $addressRepository)
     {}
 
-    public function getAllAddressesUser()
+    public function getAllAddressesUser(User $user)
     {
-        return $this->addressRepository->authAddresses()->get();
+        return $user->addresses()->get();
     }
 
-    public function findAddressById(string $id)
+    public function findAddressById(User $user, string $addressId)
     {
         try {
-            return $this->addressRepository->findAddress($id); 
-        } catch (ModelNotFoundException $e) {
+            return $this->addressRepository->findAddress($user, $addressId); 
+        } catch (ModelNotFoundException) {
             return null;
         }
     }
 
-    public function createAddress(array $dataValidated)
+    public function createAddress(array $dataValidated, int $userId)
     {
-        $dataValidated['userId'] = Auth::id();
+        $dataValidated['userId'] = $userId;
         return $this->addressRepository->create($dataValidated);
     }
 
-    public function updateAddress(array $dataValidated, string $addressId)
+    public function updateAddress(array $dataValidated, string $addressId, User $user)
     {
-        $address = $this->findAddressById($addressId);
+        $address = $this->findAddressById($user, $addressId);
         
         if(!$address)
         {
@@ -45,15 +46,21 @@ class AddressService
         return $address;
     }
 
-    public function deleteAddress(string $addressId)
+    public function deleteAddress(string $addressId, User $user)
     {
-        $address = $this->findAddressById($addressId);
+        $address = $this->findAddressById($user, $addressId);
 
-        if(!$address || $address->orders()->count() > 0)
+        if(!$address)
         {
-            return null;
+            return AddressDeleteStatus::NOT_FOUND;
         }
 
-        return $address->delete();
+        if($address->orders()->count() > 0)
+        {
+            return AddressDeleteStatus::HAS_ORDERS;
+        }
+
+        $address->delete();
+        return AddressDeleteStatus::DELETED;
     }
 }
