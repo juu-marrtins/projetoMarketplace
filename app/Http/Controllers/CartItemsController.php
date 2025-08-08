@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Enums\CartItems\CartItemsCartStatus;
 use App\Enums\CartItems\CartItemsInsertStatus;
 use App\Helpers\ApiResponse;
-use App\Http\Requests\DestroyCartItemRequest;
 use App\Http\Requests\InsertCartItemsRequest;
 use App\Http\Resources\CartItemsResource;
 use App\Http\Services\CartItemsService;
