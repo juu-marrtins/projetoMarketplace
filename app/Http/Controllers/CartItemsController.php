@@ -69,8 +69,9 @@ class CartItemsController extends Controller
 
     public function destroy(DestroyCartItemRequest $request)
     {
+        $cart = Auth::user()->cart;
         $dataValidated = $request->validated();
-        $cartItem = $this->cartItemsService->deleteItem($dataValidated['productId'], Auth::user());
+        $cartItem = $this->cartItemsService->deleteItem($dataValidated['productId'], $cart->id);
 
         if(!$cartItem)
         {

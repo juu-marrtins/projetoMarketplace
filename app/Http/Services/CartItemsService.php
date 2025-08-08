@@ -12,7 +12,8 @@ class CartItemsService
 {
     public function __construct(
         protected CartItemsRepository $cartItemsRepository,
-        protected ProductService $productService)
+        protected ProductService $productService,
+        protected CartService $cartService)
     {}
 
     public function getItems(User $user)
@@ -34,8 +35,9 @@ class CartItemsService
     public function insertItem(array $dataValidated, User $user)
     {
         $cart = $user->cart;
+        
         if (!$cart) {
-            return CartItemsInsertStatus::CART_NOT_FOUND;
+            $cart = $this->cartService->createCart($user);
         }
 
         $dataValidated['cartId'] = $cart->id;
@@ -50,7 +52,7 @@ class CartItemsService
 
         $stock = $product->stock;
 
-        $hasItem = $this->cartItemsRepository->findCartItemByProductId($productId, $user);
+        $hasItem = $this->cartItemsRepository->findCartItemByProductId($productId, $cart->id);
         $newQty = $dataValidated['quantity'];
         $currentQty = $hasItem ? $hasItem->quantity : 0;
 
@@ -59,7 +61,7 @@ class CartItemsService
         }
 
         if ($hasItem) {
-            $this->incrementItem($dataValidated, $user);
+            $this->incrementItem($dataValidated, $cart->id);
         } else {
             $this->cartItemsRepository->insert($dataValidated);
         }
@@ -67,17 +69,17 @@ class CartItemsService
     }
 
 
-    public function incrementItem(array $dataValidated, User $user)
+    public function incrementItem(array $dataValidated, string $cartId)
     {
         return $this->cartItemsRepository->incrementQuantity(
             $dataValidated['productId'],
             $dataValidated['quantity'],
-            $user);
+            $cartId);
     }
 
-    public function deleteItem(string $productId, User $user)
+    public function deleteItem(string $productId, string $cartId)
     {
-        $item = $this->cartItemsRepository->findCartItemByProductId($productId, $user);
+        $item = $this->cartItemsRepository->findCartItemByProductId($productId, $cartId);
         if(!$item)
         {
             return null;

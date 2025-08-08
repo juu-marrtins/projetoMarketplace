@@ -26,17 +26,16 @@ class CartItemsRepository
         return CartItem::create($dataValidated);
     }
 
-    public function findCartItemByProductId(string $productId, User $user)
+    public function findCartItemByProductId(string $productId, string $cartId)
     {
-        $cartId = $user->cart->id;
         return CartItem::where('cartId', $cartId)
                         ->where('productId', $productId)
                         ->first();
     }
 
-    public function incrementQuantity(string $productId, int $newQuantity, User $user)
+    public function incrementQuantity(string $productId, int $newQuantity, string $cartId)
     {
-        $product = $this->findCartItemByProductId($productId, $user);
+        $product = $this->findCartItemByProductId($productId, $cartId);
 
         $product->quantity += $newQuantity;
         $product->save();
