@@ -61,7 +61,7 @@ class OrderController extends Controller
             return ApiResponse::success(
                 'Pedido criado, mas sem o uso de desconto.',
                 new OrderResource($order[1]),
-                200
+                201
             );
         }
         return ApiResponse::success(

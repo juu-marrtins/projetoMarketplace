@@ -40,10 +40,12 @@ class OrderService
     public function createOrder(array $dataValidated, User $user)
     {   
         $dataValidated['userId'] = $user->id;
+
         if(!$this->confirmAddress($dataValidated['addressId'], $user))
         {
             return OrderCreateOrderStatus::ADDRESS_NOT_FOUND;
         }
+
         $dataValidated['status'] = 'PENDING';
         $dataValidated['orderDate'] = now();    
         $dataValidated['totalAmount'] = 0;
@@ -52,7 +54,7 @@ class OrderService
             return OrderCreateOrderStatus::CART_EMPTY;
         }
 
-        $order =  $this->orderRepository->create($dataValidated);
+        $order = $this->orderRepository->create($dataValidated);
 
         $orderItemCreate = $this->createOrderItem($order, $user);
 
