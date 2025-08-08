@@ -2,7 +2,6 @@
 
 namespace App\Http\Services;
 
-use App\Enums\Cart\CartCreateStatus;
 use App\Enums\Cart\CartDeleteStatus;
 use App\Http\Repository\CartRepository;
 use App\Models\User;
@@ -21,11 +20,6 @@ class CartService
 
     public function createCart(User $user)
     {
-        if($user->cart)
-        {
-            return CartCreateStatus::ALREADY_HAS_CART;
-        }
-
         return $this->cartRepository->create($user);
     }
 
