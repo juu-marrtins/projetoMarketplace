@@ -14,7 +14,7 @@ class AdminUserController extends Controller
     public function __construct(protected AdminUserService $adminUserService)
     {}
 
-    public function store(StoreAdminRequest $request) // SUPER OK
+    public function store(StoreAdminRequest $request) // ok 2.0
     {
         return ApiResponse::success(
             'Moderator criado com sucesso.',
