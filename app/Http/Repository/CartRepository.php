@@ -7,7 +7,7 @@ use App\Models\User;
 
 class CartRepository
 {
-    public function create(User $user)
+    public function create(User $user) : Cart
     {
         return Cart::create([
             'userId' => $user->id

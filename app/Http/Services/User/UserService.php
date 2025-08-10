@@ -10,20 +10,20 @@ class UserService
     public function __construct(protected UserRepository $userRepository)
     {}
 
-    public function createUser(array $dataValidated)
+    public function createUser(array $dataValidated) : User
     {
         $dataValidated['role'] = 'CLIENT';
         return User::create($dataValidated);
     }
 
-    public function updateUser(User $user, array $dataValidated)
+    public function updateUser(User $user, array $dataValidated) : User
     {
         $user->update($dataValidated);
 
         return $user;
     }
 
-    public function deleteUser(User $authUser)
+    public function deleteUser(User $authUser) : User
     {
         $authUser->delete();
 

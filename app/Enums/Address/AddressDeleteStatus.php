@@ -2,9 +2,9 @@
 
 namespace App\Enums\Address;
 
-class AddressDeleteStatus
+enum AddressDeleteStatus : string
 {
-    public const NOT_FOUND = 'no_address';
-    public const HAS_ORDERS = 'exist_orders';
-    public const DELETED = 'deleted';
+    case NOT_FOUND = 'no_address';
+    case HAS_ORDERS = 'exist_orders';
+    case DELETED = 'deleted';
 }

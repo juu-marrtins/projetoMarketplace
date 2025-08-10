@@ -16,7 +16,7 @@ class CouponController extends Controller
     public function __construct(protected CouponService $couponService)
     {}
 
-    public function index()
+    public function index() // ok 2.0
     {
         $coupons = $this->couponService->getAllCoupons();
         
@@ -30,7 +30,7 @@ class CouponController extends Controller
             200);
     }
 
-    public function store(StoreCouponRequest $request)
+    public function store(StoreCouponRequest $request) // ok 2.0
     {
         return ApiResponse::success(
             'Cupom criado com sucesso.',
@@ -38,7 +38,7 @@ class CouponController extends Controller
             201);
     }
 
-    public function show(string $couponId)
+    public function show(string $couponId) // ok 2.0
     {
 
         $coupon = $this->couponService->findCouponById($couponId);
@@ -54,7 +54,7 @@ class CouponController extends Controller
             200);
     }
 
-    public function update(UpdateCouponRequest $request, string $couponId)
+    public function update(UpdateCouponRequest $request, string $couponId) // ok 2.0
     {
         $coupon = $this->couponService->updateCoupon($request->validated(), $couponId);
         
@@ -69,19 +69,16 @@ class CouponController extends Controller
             200);
     }
 
-    public function destroy(string $couponId)
+    public function destroy(string $couponId) // ok 2.0
     {
-        $coupon = $this->couponService->deleteCoupon($couponId);
+        $status = $this->couponService->deleteCoupon($couponId);
 
-        if($coupon === CouponDeleteStatus::HAS_ORDERS)
+        match($status)
         {
-            return ApiResponse::fail('O cupom possue pedidos associado a ele.', 409);
-        }
-        if($coupon === CouponDeleteStatus::NOT_FOUND)
-        {
-            return ApiResponse::fail('Cupom não encontrado.', 404);
-        }
-
-        return response()->noContent();
+            CouponDeleteStatus::HAS_ORDERS => ApiResponse::fail('O cupom possue pedidos associado a ele.', 409),
+            CouponDeleteStatus::NOT_FOUND  => ApiResponse::fail('Cupom não encontrado.', 404),
+            CouponDeleteStatus::DELETED    => response()->noContent(),
+            default                        => ApiResponse::fail('Erro ao deletar cupom.', 500)
+        };
     }
 }

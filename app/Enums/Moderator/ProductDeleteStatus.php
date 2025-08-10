@@ -2,9 +2,9 @@
 
 namespace App\Enums\Moderator;
 
-class ProductDeleteStatus
+enum ProductDeleteStatus : string
 {
-    public const NOT_FOUND = 'no_products';
-    public const HAS_ORDERS_ITEMS = 'has_orders_items';
-    public const DELETED = 'deleted';
+    case NOT_FOUND = 'no_products';
+    case HAS_ORDERS_ITEMS = 'has_orders_items';
+    case DELETED = 'deleted';
 }

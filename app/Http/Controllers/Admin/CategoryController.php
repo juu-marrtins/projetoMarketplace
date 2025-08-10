@@ -16,7 +16,7 @@ class CategoryController extends Controller
     public function __construct(protected CategoryService $categoryService)
     {}
 
-    public function index()
+    public function index() // ok 2.0
     {
         $categories = $this->categoryService->getAllCategories();
 
@@ -31,7 +31,7 @@ class CategoryController extends Controller
             200);
     }
 
-    public function store(StoreCategoryRequest $request)
+    public function store(StoreCategoryRequest $request) // ok 2.0
     {
         return ApiResponse::success(
             'Categoria criada com sucesso.',
@@ -39,7 +39,7 @@ class CategoryController extends Controller
             201);
     }
 
-    public function show(string $categoryId)
+    public function show(string $categoryId) // ok 2.0
     {
         $category = $this->categoryService->findCategoryById($categoryId);
 
@@ -54,7 +54,7 @@ class CategoryController extends Controller
             200);
     }
 
-    public function update(UpdateCategoryRequest $request, string $categoryId)
+    public function update(UpdateCategoryRequest $request, string $categoryId) // ok 2.0
     {   
         $category = $this->categoryService->updateCategory($request->validated(), $categoryId);
 
@@ -69,18 +69,17 @@ class CategoryController extends Controller
             200);
     }
 
-    public function destroy(string $categoryId)
+    public function destroy(string $categoryId) // ok 2.0
     {
-        $category = $this->categoryService->deleteCategory($categoryId);
+        $status = $this->categoryService->deleteCategory($categoryId);
 
-        if($category === CategoryDeleteStatus::HAS_PRODUCTS)
+        match($status)
         {
-            return ApiResponse::fail(
-                'A categoria não pode ser excluída por existir produtos associados.', 409);
-        }
-        if($category === CategoryDeleteStatus::NOT_FOUND){
-            return ApiResponse::fail('Categoria não encontrada.', 404);
-        }
-        return response()->noContent();
+            CategoryDeleteStatus::HAS_PRODUCTS => ApiResponse::fail(
+                'A categoria não pode ser excluída por existir produtos associados.', 409),
+            CategoryDeleteStatus::NOT_FOUND    => ApiResponse::fail('Categoria não encontrada.', 404),
+            CategoryDeleteStatus::DELETED      =>  response()->noContent(),
+            default                            => ApiResponse::fail('Erro ao deletar categoria.', 500)
+        };
     }
 }

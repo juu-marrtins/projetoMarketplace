@@ -4,6 +4,7 @@ namespace App\Http\Services;
 
 use App\Enums\Cart\CartDeleteStatus;
 use App\Http\Repository\CartRepository;
+use App\Models\Cart;
 use App\Models\User;
 
 class CartService
@@ -11,19 +12,19 @@ class CartService
     public function __construct(protected CartRepository $cartRepository)
     {}
 
-    public function getCartAuth(User $user)
+    public function getCartAuth(User $user) : Cart
     {
         $cart = $user->cart;
 
         return $cart;
     }
 
-    public function createCart(User $user)
+    public function createCart(User $user) : Cart
     {
         return $this->cartRepository->create($user);
     }
 
-    public function deleteCart(User $user)
+    public function deleteCart(User $user) : CartDeleteStatus
     {
         $cart = $user->cart;
 
@@ -33,6 +34,6 @@ class CartService
 
         $cart->delete();
 
-        return $cart;
+        return CartDeleteStatus::DELETED;
     }
 }

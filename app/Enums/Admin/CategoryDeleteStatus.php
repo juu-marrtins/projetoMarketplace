@@ -2,9 +2,9 @@
 
 namespace App\Enums\Admin;
 
-class CategoryDeleteStatus
+enum CategoryDeleteStatus : string
 {
-    public const NOT_FOUND = 'no_categories';
-    public const HAS_PRODUCTS = 'has_products';
-    public const DELETED = 'deleted';
+    case NOT_FOUND = 'no_categories';
+    case HAS_PRODUCTS = 'has_products';
+    case DELETED = 'deleted';
 }

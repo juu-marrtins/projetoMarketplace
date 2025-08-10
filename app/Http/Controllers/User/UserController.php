@@ -15,7 +15,7 @@ class UserController extends Controller
     public function __construct(protected UserService $userService)
     {}
     
-    public function me()
+    public function me() // ok 2.0
     {
         return ApiResponse::success(
             'Dados do usuário autênticado.',
@@ -24,7 +24,7 @@ class UserController extends Controller
         );
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(StoreUserRequest $request) // ok 2.0
     {           
         return ApiResponse::success(
             'Usuário criado com sucesso.', 
@@ -33,7 +33,7 @@ class UserController extends Controller
         );
     }
 
-    public function update(UpdateUserRequest $request)
+    public function update(UpdateUserRequest $request) // ok 2.0
     {
         return ApiResponse::success(
             'Usuário atualizado com sucesso!',
@@ -42,7 +42,7 @@ class UserController extends Controller
         );
     }
 
-    public function destroy()
+    public function destroy() // ok 2.0
     {
         $this->userService->deleteUser(Auth::user());
 
