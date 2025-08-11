@@ -19,10 +19,10 @@ class AddressService
         return $user->addresses()->get();
     }
 
-    public function findAddressById(User $user, string $addressId) : ?Address
+    public function getAddressByUserAndId(User $user, string $addressId) : ?Address
     {
         try {
-            return $this->addressRepository->findAddress($user, $addressId); 
+            return $this->addressRepository->findByUserId($user, $addressId); 
         } catch (ModelNotFoundException) {
             return null;
         }
@@ -36,7 +36,7 @@ class AddressService
 
     public function updateAddress(array $dataValidated, string $addressId, User $user) : ?Address
     {
-        $address = $this->findAddressById($user, $addressId);
+        $address = $this->getAddressByUserAndId($user, $addressId);
         
         if(!$address)
         {
@@ -50,7 +50,7 @@ class AddressService
 
     public function deleteAddress(string $addressId, User $user) : AddressDeleteStatus
     {
-        $address = $this->findAddressById($user, $addressId);
+        $address = $this->getAddressByUserAndId($user, $addressId);
 
         if(!$address)
         {

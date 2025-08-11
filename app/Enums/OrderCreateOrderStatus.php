@@ -2,14 +2,15 @@
 
 namespace App\Enums;
 
-class OrderCreateOrderStatus
+enum OrderCreateOrderStatus : string
 {
-    public const STOCK_NOT_ENOUGH = 'stock_not_enough';
-    public const SUCCESS = 'success';
-    public const DISCOUNT_INVALID = 'discount_invalid';
-    public const CART_EMPTY = 'cart_empty';
-    public const ORDER_ALREADY_CANCELED = 'order_already_canceled';
-    public const ORDER_NOT_FOUND = 'order_not_found';
-    public const ADDRESS_NOT_FOUND = 'address_not_found';
-    public const ORDER_SUCCESS_WITHOUT_DISCOUNT = 'order_success_without_discount';
+    case STOCK_NOT_ENOUGH = 'stock_not_enough';
+    case SUCCESS = 'success';
+    case DISCOUNT_INVALID = 'discount_invalid';
+    case CART_EMPTY = 'cart_empty';
+    case ORDER_ALREADY_CANCELED = 'order_already_canceled';
+    case ORDER_NOT_FOUND = 'order_not_found';
+    case ADDRESS_NOT_FOUND = 'address_not_found';
+    case ADDRESS_FOUND = 'address_found';
+    case ORDER_SUCCESS_WITHOUT_DISCOUNT = 'order_success_without_discount';
 }

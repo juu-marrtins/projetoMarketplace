@@ -15,7 +15,7 @@ class CartController extends Controller
 
     public function cartUser() // ok 2.0
     {
-        $cart = $this->cartService->getCartAuth(Auth::user());
+        $cart = $this->cartService->getCartUserAuth(Auth::user());
 
         if(!$cart)
         {

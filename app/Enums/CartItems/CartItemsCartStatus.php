@@ -2,8 +2,8 @@
 
 namespace App\Enums\CartItems;
 
-class CartItemsCartStatus
+enum CartItemsCartStatus : string
 {
-    public const CART_NOT_FOUND = 'cart_not_found';
-    public const NO_ITEMS = 'no_items';
+    case CART_NOT_FOUND = 'cart_not_found';
+    case NO_ITEMS = 'no_items';
 }

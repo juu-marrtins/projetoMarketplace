@@ -2,9 +2,9 @@
 
 namespace App\Enums\CartItems;
 
-class CartItemsInsertStatus
+enum CartItemsInsertStatus : string
 {
-    public const CART_NOT_FOUND = 'cart_not_found';
-    public const STOCK_NOT_ENOUGH = 'stock_not_enough';
-    public const PRODUCT_NOT_FOUND = 'product_not_found';
+    case CART_NOT_FOUND = 'cart_not_found';
+    case STOCK_NOT_ENOUGH = 'stock_not_enough';
+    case PRODUCT_NOT_FOUND = 'product_not_found';
 }

@@ -17,7 +17,7 @@ class CartItemsController extends Controller
 
     public function itemsCart()
     {
-        $cartItems = $this->cartItemsService->getItems(Auth::user());
+        $cartItems = $this->cartItemsService->getCartItemsUserAuth(Auth::user());
 
         if($cartItems === CartItemsCartStatus::CART_NOT_FOUND)
         {
@@ -46,24 +46,13 @@ class CartItemsController extends Controller
     public function insert(InsertCartItemsRequest $request)
     {
         $cartItem = $this->cartItemsService->insertItem($request->validated(), Auth::user());
-
-        if ($cartItem === CartItemsInsertStatus::CART_NOT_FOUND)
-        {
-            return ApiResponse::fail(
-                'Carrinho não encontrado',
-                404
-            );
-        }
-
-        if ($cartItem === CartItemsInsertStatus::STOCK_NOT_ENOUGH)
-        {
-            return ApiResponse::fail(
-                'Estoque insuficiente.',
-                409
-            );
-        }
         
-        return response()->noContent();
+        match($cartItem)
+        {
+            CartItemsInsertStatus::CART_NOT_FOUND   => ApiResponse::fail('Carrinho não encontrado',404),
+            CartItemsInsertStatus::STOCK_NOT_ENOUGH => ApiResponse::fail('Estoque insuficiente.',409),
+            default                                 => response()->noContent()
+        };
     }
 
     public function destroy(string $cartItemId)

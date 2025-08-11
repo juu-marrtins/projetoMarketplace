@@ -33,7 +33,6 @@ class OrderController extends Controller
             OrderResource::collection($orders),
             200
         );
-
     }
 
     public function store(StoreOrderRequest $request)  
@@ -59,7 +58,7 @@ class OrderController extends Controller
         if($order[0]  === OrderCreateOrderStatus::ORDER_SUCCESS_WITHOUT_DISCOUNT)
         {
             return ApiResponse::success(
-                'Pedido criado, mas sem o uso de desconto.',
+                'Pedido criado, mas sem o uso de cupom.',
                 new OrderResource($order[1]),
                 201
             );

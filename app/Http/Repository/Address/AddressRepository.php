@@ -8,7 +8,7 @@ use App\Models\User;
 class AddressRepository
 {
 
-    public function findAddress(User $user, string $id) : Address
+    public function findByUserId(User $user, string $id) : Address
     {
         return $user->addresses()->findOrFail($id);
     }

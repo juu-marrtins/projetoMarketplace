@@ -12,7 +12,7 @@ class CartService
     public function __construct(protected CartRepository $cartRepository)
     {}
 
-    public function getCartAuth(User $user) : Cart
+    public function getCartUserAuth(User $user) 
     {
         $cart = $user->cart;
 
@@ -24,7 +24,7 @@ class CartService
         return $this->cartRepository->create($user);
     }
 
-    public function deleteCart(User $user) : CartDeleteStatus
+    public function deleteCart(User $user) 
     {
         $cart = $user->cart;
 

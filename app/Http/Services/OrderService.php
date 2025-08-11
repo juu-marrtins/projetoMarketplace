@@ -41,7 +41,7 @@ class OrderService
     {   
         $dataValidated['userId'] = $user->id;
 
-        if(!$this->confirmAddress($dataValidated['addressId'], $user))
+        if(!$this->confirmAddress($dataValidated['addressId'], $user) === OrderCreateOrderStatus::ADDRESS_FOUND)
         {
             return OrderCreateOrderStatus::ADDRESS_NOT_FOUND;
         }
@@ -65,13 +65,13 @@ class OrderService
         return $order;
     }
 
-    public function confirmAddress(string $addressId, User $user)
+    public function confirmAddress(string $addressId, User $user) 
     {
-        if(!$this->addressService->findAddressById($user, $addressId))
+        if(!$this->addressService->getAddressByUserAndId($user, $addressId))
         {
             return OrderCreateOrderStatus::ADDRESS_NOT_FOUND;
         }
-        return true;
+        return OrderCreateOrderStatus::ADDRESS_FOUND;
     }
 
     public function createOrderItem(Order $order, User $user)
@@ -130,7 +130,7 @@ class OrderService
         return OrderCreateOrderStatus::SUCCESS;
     }
 
-    public function decrementProduct(Product $product, CartItem $item)
+    public function decrementProduct(Product $product, CartItem $item) 
     {
 
         if($product->stock < $item->quantity)
@@ -145,7 +145,7 @@ class OrderService
         return OrderCreateOrderStatus::SUCCESS;
     }
 
-    public function restoreStock(string $orderId)
+    public function restoreStock(string $orderId) : ?bool
     {
         $order = $this->orderRepository->findOrderById($orderId);
         
@@ -162,20 +162,20 @@ class OrderService
         return true;
     }
 
-    public function getCoupon(float $totalOrder, Coupon $coupon)
+    public function getCoupon(float $totalOrder, Coupon $coupon) : float
     {
         $amountCoupon = $totalOrder * ($coupon->discountPercentage/100);
         return $totalOrder - $amountCoupon;
     }
 
-    public function getDiscount(float $subtotal, $discount)
+    public function getDiscount(float $subtotal, $discount) : float
     {
         $amountDiscount = $subtotal * ($discount->discountPercentage / 100);
         return $subtotal - $amountDiscount;
     }
 
 
-    public function getOrderById(string $orderId, int $userId)
+    public function getOrderById(string $orderId, int $userId) 
     {
         $order = $this->orderRepository->findByUserAndId($userId, $orderId);
 
@@ -186,7 +186,7 @@ class OrderService
         return $order;
     }
 
-    public function updateStatusOrder(string $orderId, string $newStatus)
+    public function updateStatusOrder(string $orderId, string $newStatus) 
     {
         $order = $this->orderRepository->findOrderById($orderId);
 
@@ -207,7 +207,7 @@ class OrderService
         return $updateOrder;
     }
 
-    public function userCancelOrder(string $orderId)
+    public function userCancelOrder(string $orderId) 
     {
         $order = $this->orderRepository->findByUserAndId(Auth::id(), $orderId);
 
@@ -220,9 +220,12 @@ class OrderService
             return OrderCreateOrderStatus::ORDER_ALREADY_CANCELED;
         }
 
-        $order->status = 'CANCELED';
+        $newStatus = 'CANCELED';
+
+        $this->orderRepository->update($order, $newStatus);
+
         $this->restoreStock($orderId);
         
-        return true;
+        return OrderCreateOrderStatus::SUCCESS;
     }
 }

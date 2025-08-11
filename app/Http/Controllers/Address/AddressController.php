@@ -40,7 +40,7 @@ class AddressController extends Controller
 
     public function show(string $addressId) // ok 2.0
     { 
-        $address = $this->addressService->findAddressById(Auth::user(), $addressId);
+        $address = $this->addressService->getAddressByUserAndId(Auth::user(), $addressId);
 
         if(!$address)
         {

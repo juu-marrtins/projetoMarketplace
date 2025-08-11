@@ -8,7 +8,7 @@ use App\Models\User;
 
 class CartItemsRepository
 {
-    public function allItems(User $user)
+    public function allItems(User $user) 
     {
         $cart = $user->cart()->with('cartItems')->first();
 
@@ -21,25 +21,25 @@ class CartItemsRepository
         return $items;
     }
 
-    public function insert(array $dataValidated)
+    public function insert(array $dataValidated) 
     {
         return CartItem::create($dataValidated);
     }
 
-    public function findCartItemByProductId(string $productId, string $cartId)
+    public function findCartItemByProductId(string $productId, string $cartId) 
     {
         return CartItem::where('cartId', $cartId)
                         ->where('productId', $productId)
                         ->first();
     }
 
-    public function incrementQuantity(string $productId, int $newQuantity, string $cartId)
+    public function incrementQuantity(string $productId, int $newQuantity, string $cartId) 
     {
-        $product = $this->findCartItemByProductId($productId, $cartId);
+        $cartItem = $this->findCartItemByProductId($productId, $cartId);
 
-        $product->quantity += $newQuantity;
-        $product->save();
+        $cartItem->quantity += $newQuantity;
+        $cartItem->save();
 
-        return $product;
+        return $cartItem;
     }
 }

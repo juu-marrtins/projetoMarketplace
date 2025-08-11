@@ -8,6 +8,7 @@ use App\Http\Repository\CartItemsRepository;
 use App\Http\Services\Moderator\ProductService;
 use App\Models\User;
 
+
 class CartItemsService
 {
     public function __construct(
@@ -16,7 +17,7 @@ class CartItemsService
         protected CartService $cartService)
     {}
 
-    public function getItems(User $user)
+    public function getCartItemsUserAuth(User $user) 
     {
         
         $items = $this->cartItemsRepository->allItems($user);
@@ -32,7 +33,7 @@ class CartItemsService
         return $items;
     }
 
-    public function insertItem(array $dataValidated, User $user)
+    public function insertItem(array $dataValidated, User $user) 
     {
         $cart = $user->cart;
         
@@ -69,7 +70,7 @@ class CartItemsService
     }
 
 
-    public function incrementItem(array $dataValidated, string $cartId)
+    public function incrementItem(array $dataValidated, string $cartId) 
     {
         return $this->cartItemsRepository->incrementQuantity(
             $dataValidated['productId'],
@@ -77,7 +78,7 @@ class CartItemsService
             $cartId);
     }
 
-    public function deleteItem(string $productId, string $cartId)
+    public function deleteItem(string $productId, string $cartId) 
     {
         $item = $this->cartItemsRepository->findCartItemByProductId($productId, $cartId);
         if(!$item)
