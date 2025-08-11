@@ -13,4 +13,5 @@ enum OrderCreateOrderStatus : string
     case ADDRESS_NOT_FOUND = 'address_not_found';
     case ADDRESS_FOUND = 'address_found';
     case ORDER_SUCCESS_WITHOUT_DISCOUNT = 'order_success_without_discount';
+    case CART_NOT_FOUND = 'cart_not_found';
 }

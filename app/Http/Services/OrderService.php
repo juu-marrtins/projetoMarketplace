@@ -39,6 +39,10 @@ class OrderService
 
     public function createOrder(array $dataValidated, User $user)
     {   
+        if(!$user->cart)
+        {
+            return OrderCreateOrderStatus::CART_NOT_FOUND;
+        }
         $dataValidated['userId'] = $user->id;
 
         if(!$this->confirmAddress($dataValidated['addressId'], $user) === OrderCreateOrderStatus::ADDRESS_FOUND)
@@ -58,7 +62,10 @@ class OrderService
 
         $orderItemCreate = $this->createOrderItem($order, $user);
 
-        if($orderItemCreate != OrderCreateOrderStatus::SUCCESS || $orderItemCreate != OrderCreateOrderStatus::ORDER_SUCCESS_WITHOUT_DISCOUNT){
+        if (
+            (!is_array($orderItemCreate) && $orderItemCreate != OrderCreateOrderStatus::SUCCESS) ||
+            (is_array($orderItemCreate) && $orderItemCreate[0] != OrderCreateOrderStatus::ORDER_SUCCESS_WITHOUT_DISCOUNT)
+        ) {
             return $orderItemCreate;
         }
 

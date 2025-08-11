@@ -75,8 +75,7 @@ class CategoryController extends Controller
 
         match($status)
         {
-            CategoryDeleteStatus::HAS_PRODUCTS => ApiResponse::fail(
-                'A categoria não pode ser excluída por existir produtos associados.', 409),
+            CategoryDeleteStatus::HAS_PRODUCTS => ApiResponse::fail('A categoria não pode ser excluída por existir produtos associados.', 409),
             CategoryDeleteStatus::NOT_FOUND    => ApiResponse::fail('Categoria não encontrada.', 404),
             CategoryDeleteStatus::DELETED      =>  response()->noContent(),
             default                            => ApiResponse::fail('Erro ao deletar categoria.', 500)

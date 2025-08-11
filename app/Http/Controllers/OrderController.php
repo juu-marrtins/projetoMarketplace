@@ -55,6 +55,10 @@ class OrderController extends Controller
         {
             return ApiResponse::fail('Endereco inválido.', 409);
         }
+        if($order === OrderCreateOrderStatus::CART_NOT_FOUND)
+        {
+            return ApiResponse::fail('Carrinho não encontrado', 404);
+        }
         if($order[0]  === OrderCreateOrderStatus::ORDER_SUCCESS_WITHOUT_DISCOUNT)
         {
             return ApiResponse::success(
